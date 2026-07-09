@@ -30,6 +30,13 @@ Usually, managing these pieces requires staring at endless walls of text in a te
 ### 2. Live Logs (The "Under the Hood" View)
 ![Live Logs View](./public/screenshots/Screenshot%202026-07-09%20151701.png)
 
+**Smart Log Filtering Features:**
+*(These filters allow you to easily find exactly what you are looking for)*
+<p align="center">
+  <img src="./public/screenshots/Screenshot%202026-07-09%20151716.png" width="48%" />
+  <img src="./public/screenshots/Screenshot%202026-07-09%20151720.png" width="48%" />
+</p>
+
 **What it does:**
 - **Real-Time Feed**: Watches the system's brain process information in real-time. 
 - **Smart Filtering**: Instead of a chaotic wall of text, the logs are color-coded. You can click on filters like "Warnings" or specific protocols (like `[NGAP]` or `[NAS]`) to only see the information you care about.
