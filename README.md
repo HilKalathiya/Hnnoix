@@ -2,78 +2,89 @@
 
 Welcome to the **Duranta Open5GS GUI**! 
 
-If you are new to 5G networking, don't worry! This dashboard is designed to make managing a complex 5G network as easy as using a modern web app. Behind the scenes, this application connects to **Open5GS** (a software-based 5G core network) and provides a beautiful, easy-to-understand visual interface so you don't have to rely entirely on complex command-line tools.
+This dashboard is a next-generation control panel designed to act as the visual frontend for the **Duranta OpenAirInterface5G (OAI)** codebase and the **Open5GS** core network. 
+
+Instead of dealing with complex Linux terminal commands and manually editing `.conf` files, this UI provides a sleek, modern, dark-mode interface to manage, monitor, and configure a complete simulated 5G network (including the Core, the Base Station, and the User Equipment) right from your browser.
 
 ---
 
-## 🌟 What does this app do? (For Non-Technical Users)
+## 🌟 What is this project actually doing?
 
-Imagine running your own private 5G cell tower network. To make it work, you need a "Core" (the brain of the network), a "gNB" (the radio antenna), and "UEs" (User Equipment, like smartphones). 
+To run a private 5G network locally without expensive hardware, we use software simulators. A 5G network consists of three main pieces:
+1. **The Core Network (AMF, UPF, etc.)**: We use Open5GS for this. It acts as the brain, handling internet routing and subscriber authentication.
+2. **The Base Station / Tower (gNB)**: We use the `nr-softmodem` binary from the Duranta OAI codebase to simulate the cell tower broadcasting radio waves.
+3. **The Mobile Phone (UE)**: We use the `nr-uesoftmodem` binary to simulate a 5G smartphone connecting to our tower.
 
-Usually, managing these pieces requires staring at endless walls of text in a terminal. **This application changes that.** It gives you a sleek, modern, dark-mode control panel where you can:
-1. **See if your network is online** at a glance.
-2. **Watch the activity** in real-time.
-3. **Change settings** (like SIM card details) without editing confusing text files.
+This frontend acts as the **"Conductor"** for all three pieces. It allows you to configure how they talk to each other, start/stop the services, and visually monitor the highly complex 3GPP protocol messages (like RRC, NGAP, and NAS) flowing between them in real-time.
 
 ---
 
-## 📸 Visual Tour of the Features
+## 📸 Detailed Tour of the UI Features
 
 ### 1. The Dashboard (Network Overview)
-![Dashboard View](./public/screenshots/Screenshot%202026-07-09%20151655.png)
+![Dashboard View](./public/screenshots/dashboard-overview.png)
 
-**What it does:**
-- **Live Topology Map**: A visual map showing how the different pieces of your 5G network are connected. A glowing animation shows when data is successfully flowing between the Core, the Radio (gNB), and the Phones (UE).
-- **Network Status**: Quick indicators (Online/Offline) so you instantly know if the network is healthy.
-- **Real-Time Stats**: Displays metrics like signal quality, data speed (throughput), and delay (latency).
+**What this UI part does:**
+- **Live Topology Map**: This animated graph represents the actual connection state between your Open5GS AMF (Core), your Duranta gNB (Tower), and your Duranta UE (Phone). When the glowing particles are moving, it means the N2 (NGAP) and RRC control-plane connections are successfully established!
+- **Network Status Panel (Sidebar)**: Quick indicators showing if the Core (`127.0.0.5`), the gNB (`NR-ARFCN`), and the UE (`IMSI:001`) processes are actually running on your Linux machine.
+- **KPI Cards (Top)**: These display real-time network metrics extracted directly from the underlying C-binaries, such as signal quality (RSRP) and data throughput.
 
 ### 2. Live Logs (The "Under the Hood" View)
-![Live Logs View](./public/screenshots/Screenshot%202026-07-09%20151701.png)
+![Live Logs View](./public/screenshots/live-logs-main.png)
 
 **Smart Log Filtering Features:**
-*(These filters allow you to easily find exactly what you are looking for)*
+*(These buttons allow you to instantly find the exact protocol messages you are looking for)*
 <p align="center">
-  <img src="./public/screenshots/Screenshot%202026-07-09%20151716.png" width="48%" />
-  <img src="./public/screenshots/Screenshot%202026-07-09%20151720.png" width="48%" />
+  <img src="./public/screenshots/log-filters-1.png" width="48%" />
+  <img src="./public/screenshots/log-filters-2.png" width="48%" />
 </p>
 
-**What it does:**
-- **Real-Time Feed**: Watches the system's brain process information in real-time. 
-- **Smart Filtering**: Instead of a chaotic wall of text, the logs are color-coded. You can click on filters like "Warnings" or specific protocols (like `[NGAP]` or `[NAS]`) to only see the information you care about.
-- **Downloadable**: See something wrong? You can pause the feed and click the download button to save the logs for troubleshooting.
+**What this UI part does:**
+- **Real-Time Terminal Feed**: This window intercepts the raw standard output (stdout) from the `nr-softmodem` and `nr-uesoftmodem` processes. You are watching the actual C-code execute in real-time!
+- **Protocol Filter Pills**: Instead of reading a chaotic wall of text, you can click the filter pills at the top to isolate specific 5G layers:
+  - **`[NGAP]`**: Shows messages between the gNB and the AMF (e.g., `NGSetupRequest`).
+  - **`[RRC]`**: Shows radio resource control messages between the Phone and the Tower (e.g., `RRCSetupComplete`).
+  - **`[NAS]`**: Shows authentication and registration messages.
+  - **Warnings/Errors**: Instantly isolates issues like `RSRP_DROP` or connection failures.
 
 ### 3. Configuration (Network Settings)
-![Configuration View](./public/screenshots/Screenshot%202026-07-09%20151708.png)
+![Configuration View](./public/screenshots/network-configuration.png)
 
-**What it does:**
-- **SIM Card Management**: Manage the "Subscriber Credentials" (IMSI, Keys). This tells your network which smartphones are allowed to connect to your private 5G network.
-- **Core Parameters**: Set up the country code and network codes (MCC/MNC).
-- **Radio Parameters**: Configure the frequency your antenna broadcasts on (NR-ARFCN).
-- **Safe Applying**: Changes are made in a beautiful form with "Copy" buttons and safe "Apply & Restart" functionality.
+**What this UI part does:**
+This page replaces the tedious process of manually using `vim` to edit the complex `.conf` files. 
+
+- **Subscriber Credentials (SIM)**: When you edit the IMSI, Key (K), and OPc fields here, the UI updates the `uicc0` block inside your `ue.conf` file. These are the cryptographic keys that allow your simulated phone to authenticate with the Open5GS database.
+- **PLMN & Core Parameters**: When you update the MCC, MNC, and AMF IP, the UI updates the `plmn_list` and `amf_ip_address` inside your `gnb.sa.band78.fr1.106PRB.pci0.rfsim.conf` file so the tower knows exactly where to find the Core network.
+- **Apply & Restart Button**: Clicking this safely saves the configuration files to disk and restarts the underlying Linux processes so the network boots up with the new settings.
+
+### 4. Advanced Modules: MDT (Minimization of Drive Tests)
+**What this UI part does:**
+Normally, network engineers have to physically drive around cities in cars to test 5G signal strength. The **MDT Module** visualizes a feature we added to the OAI RRC C-code that makes the phone do the work automatically!
+- The phone (UE) constantly measures its signal strength (RSRP).
+- If the signal drops below a threshold (e.g., `low_rsrp` or `rsrp_drop`), the phone saves it in a 64-slot ring buffer.
+- The phone packages these samples into an ASN.1 `MeasurementReport` and sends it to the Tower.
+- This UI module intercepts those reports from the Tower's memory and displays them in beautiful charts so you can see exactly where and why the signal dropped without leaving your desk!
 
 ---
 
 ## 🖼️ Full Application Gallery
-Here are all the detailed views and screens across the entire application:
 
 <details>
 <summary><b>Click to expand and view all screenshots</b></summary>
 <br>
 
-![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151716.png)
-![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151720.png)
-![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151726.png)
-![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151731.png)
-![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151736.png)
-![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151741.png)
-![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151746.png)
-![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151750.png)
-![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151755.png)
-![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151759.png)
-![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151804.png)
-![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151809.png)
-![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151814.png)
-![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151821.png)
+![Screenshot](./public/screenshots/gallery-01.png)
+![Screenshot](./public/screenshots/gallery-02.png)
+![Screenshot](./public/screenshots/gallery-03.png)
+![Screenshot](./public/screenshots/gallery-04.png)
+![Screenshot](./public/screenshots/gallery-05.png)
+![Screenshot](./public/screenshots/gallery-06.png)
+![Screenshot](./public/screenshots/gallery-07.png)
+![Screenshot](./public/screenshots/gallery-08.png)
+![Screenshot](./public/screenshots/gallery-09.png)
+![Screenshot](./public/screenshots/gallery-10.png)
+![Screenshot](./public/screenshots/gallery-11.png)
+![Screenshot](./public/screenshots/gallery-12.png)
 
 </details>
 
@@ -126,7 +137,7 @@ Now that everything is installed, it's time to start the dashboard!
 ---
 
 ## 🛠️ For Developers: Tech Stack
-- **Framework**: React 18 with Vite for lightning-fast loading.
-- **Styling**: Tailwind CSS for the custom dark-mode aesthetic.
-- **Typography**: "Plus Jakarta Sans" for highly readable UI text, and "JetBrains Mono" for code and logs.
-- **Icons**: Lucide React.
+- **Frontend Framework**: React 18 with Vite
+- **Styling**: Tailwind CSS for custom glassmorphism and dark-mode aesthetic
+- **Typography**: "Plus Jakarta Sans" for UI, "JetBrains Mono" for terminal logs
+- **Icons**: Lucide React
