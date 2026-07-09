@@ -19,13 +19,8 @@ Usually, managing these pieces requires staring at endless walls of text in a te
 
 ## 📸 Visual Tour of the Features
 
-> **Why are the images broken?** 
-> If you are reading this on GitHub and the images below don't load, it's because the screenshots haven't been added to the folder yet! **You need to take screenshots of your app running, and save them in the `public/screenshots/` folder** as `dashboard.png`, `logs.png`, and `config.png`. Once you save them there and push to GitHub, they will magically appear below!
-
 ### 1. The Dashboard (Network Overview)
-*(File needed: `public/screenshots/dashboard.png`)*
-
-![Dashboard View](./public/screenshots/dashboard.png)
+![Dashboard View](./public/screenshots/Screenshot%202026-07-09%20151655.png)
 
 **What it does:**
 - **Live Topology Map**: A visual map showing how the different pieces of your 5G network are connected. A glowing animation shows when data is successfully flowing between the Core, the Radio (gNB), and the Phones (UE).
@@ -33,9 +28,7 @@ Usually, managing these pieces requires staring at endless walls of text in a te
 - **Real-Time Stats**: Displays metrics like signal quality, data speed (throughput), and delay (latency).
 
 ### 2. Live Logs (The "Under the Hood" View)
-*(File needed: `public/screenshots/logs.png`)*
-
-![Live Logs View](./public/screenshots/logs.png)
+![Live Logs View](./public/screenshots/Screenshot%202026-07-09%20151701.png)
 
 **What it does:**
 - **Real-Time Feed**: Watches the system's brain process information in real-time. 
@@ -43,9 +36,7 @@ Usually, managing these pieces requires staring at endless walls of text in a te
 - **Downloadable**: See something wrong? You can pause the feed and click the download button to save the logs for troubleshooting.
 
 ### 3. Configuration (Network Settings)
-*(File needed: `public/screenshots/config.png`)*
-
-![Configuration View](./public/screenshots/config.png)
+![Configuration View](./public/screenshots/Screenshot%202026-07-09%20151708.png)
 
 **What it does:**
 - **SIM Card Management**: Manage the "Subscriber Credentials" (IMSI, Keys). This tells your network which smartphones are allowed to connect to your private 5G network.
@@ -53,36 +44,77 @@ Usually, managing these pieces requires staring at endless walls of text in a te
 - **Radio Parameters**: Configure the frequency your antenna broadcasts on (NR-ARFCN).
 - **Safe Applying**: Changes are made in a beautiful form with "Copy" buttons and safe "Apply & Restart" functionality.
 
-### 4. Advanced Modules (SON & MDT)
-*These sections are placeholders for advanced network automation features:*
-- **SON (Self-Organizing Network)**: Future features where the network will automatically fix its own signal issues.
-- **MDT (Minimization of Drive Tests)**: Future telemetry gathering so engineers don't have to drive around in cars testing cell signals manually.
+---
+
+## 🖼️ Full Application Gallery
+Here are all the detailed views and screens across the entire application:
+
+<details>
+<summary><b>Click to expand and view all screenshots</b></summary>
+<br>
+
+![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151716.png)
+![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151720.png)
+![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151726.png)
+![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151731.png)
+![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151736.png)
+![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151741.png)
+![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151746.png)
+![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151750.png)
+![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151755.png)
+![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151759.png)
+![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151804.png)
+![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151809.png)
+![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151814.png)
+![Screenshot](./public/screenshots/Screenshot%202026-07-09%20151821.png)
+
+</details>
 
 ---
 
-## 🚀 How to Run the Application
+## 💻 Setting up the Project on Another Device (Full Guide)
 
-If you want to run this dashboard on your own computer, follow these simple steps:
+If you want to take this project and run it on a totally different computer, follow this exact step-by-step guide!
 
-### Prerequisites
-You will need to have Node.js installed on your computer. If you don't have it, you can download it from [nodejs.org](https://nodejs.org/).
+### Step 1: Install Node.js (Required)
+Before doing anything, the new device needs Node.js installed to run the application.
+1. Go to the official website: [https://nodejs.org/](https://nodejs.org/)
+2. Download the **LTS (Long Term Support)** version for your operating system (Windows, Mac, or Linux).
+3. Run the installer and click "Next" through all the default options. 
+4. To verify it worked, open your terminal (Command Prompt / PowerShell / Terminal) and type `node -v`. It should print a version number (like `v18.x.x`).
 
-### Step-by-Step Instructions
-1. **Open your Terminal (or Command Prompt)**
-2. **Go to the project folder:**
+### Step 2: Get the Code
+You need to get the source code onto the new device.
+- **If using Git**: 
+  Open your terminal and run:
+  `git clone <YOUR_GITHUB_REPO_URL>`
+  *(Replace the URL with your actual GitHub repository link!)*
+- **If using a ZIP file**:
+  Download the code as a ZIP file from GitHub, and extract the folder somewhere on your computer.
+
+### Step 3: Install the Project Dependencies
+The project uses many UI libraries (like Tailwind CSS and React) that aren't included in the source code directly to save space. We need to download them.
+1. Open your terminal.
+2. Navigate into the project folder you just downloaded:
    ```bash
-   cd Hnnoix
+   cd path/to/Hnnoix
    ```
-3. **Install the required packages:** 
-   *(This downloads all the UI libraries the app needs to look pretty)*
+3. Run the install command:
    ```bash
    npm install
    ```
-4. **Start the application:**
+   *(This might take a minute or two as it downloads everything into a `node_modules` folder).*
+
+### Step 4: Run the Application!
+Now that everything is installed, it's time to start the dashboard!
+1. In the same terminal, run:
    ```bash
    npm run dev
    ```
-5. **View the app:** Open your web browser (like Chrome or Edge) and go to the link shown in your terminal (usually `http://localhost:5173`).
+2. The terminal will print out a local web address. It usually looks like this:
+   `➜  Local:   http://localhost:5173/`
+3. Hold `Ctrl` (or `Cmd` on Mac) and click that link, OR copy and paste it into your web browser (Chrome/Edge/Safari).
+4. **Congratulations! The Duranta Open5GS GUI is now running on the new device.**
 
 ---
 
