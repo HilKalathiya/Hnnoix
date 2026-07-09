@@ -1,0 +1,386 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────
+   BASE RESET & ROOT VARS
+───────────────────────────────────────────────────────── */
+:root {
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 64px;
+  --navbar-height: 56px;
+  --neon:    #00e85c;
+  --signal:  #0094ff;
+  --violet:  #7c6aff;
+  --danger:  #ff4d6d;
+  --amber:   #f59e0b;
+  --neon-glow:    rgba(0, 232, 92, 0.45);
+  --signal-glow:  rgba(0, 148, 255, 0.45);
+  --violet-glow:  rgba(124, 106, 255, 0.45);
+  --danger-glow:  rgba(255, 77, 109, 0.45);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #07080c;
+  color: #f1f5f9;
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
+}
+
+/* ─────────────────────────────────────────────────────────
+   CUSTOM SCROLLBAR
+───────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #0a0b0f; }
+::-webkit-scrollbar-thumb {
+  background: #1e2130;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 106, 255, 0.4);
+}
+
+.terminal-scroll::-webkit-scrollbar { width: 4px; }
+.terminal-scroll::-webkit-scrollbar-track { background: #050507; }
+.terminal-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 232, 92, 0.3);
+  border-radius: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────
+   GLASS MORPHISM UTILITIES
+───────────────────────────────────────────────────────── */
+.glass {
+  background: rgba(16, 18, 26, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.glass-deep {
+  background: rgba(10, 11, 16, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-sidebar {
+  background: linear-gradient(180deg,
+    rgba(10, 11, 18, 0.97) 0%,
+    rgba(8, 9, 14, 0.99) 100%
+  );
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+}
+
+/* ─────────────────────────────────────────────────────────
+   GRADIENT BORDER UTILITY
+───────────────────────────────────────────────────────── */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg,
+    rgba(124, 106, 255, 0.3) 0%,
+    rgba(0, 148, 255, 0.15) 50%,
+    rgba(0, 232, 92, 0.1) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────────────
+   STAT CARD PREMIUM STYLE
+───────────────────────────────────────────────────────── */
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(16, 18, 28, 0.8);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.stat-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 60%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* ─────────────────────────────────────────────────────────
+   NEON GLOW EFFECTS
+───────────────────────────────────────────────────────── */
+.neon-text {
+  color: var(--neon);
+  text-shadow: 0 0 14px rgba(0, 232, 92, 0.6);
+}
+.signal-text {
+  color: var(--signal);
+  text-shadow: 0 0 14px rgba(0, 148, 255, 0.6);
+}
+.violet-text {
+  color: var(--violet);
+  text-shadow: 0 0 14px rgba(124, 106, 255, 0.6);
+}
+
+.neon-border {
+  border-color: var(--neon);
+  box-shadow: 0 0 0 1px rgba(0, 232, 92, 0.25),
+              inset 0 0 20px rgba(0, 232, 92, 0.04);
+}
+.signal-border {
+  border-color: var(--signal);
+  box-shadow: 0 0 0 1px rgba(0, 148, 255, 0.25),
+              inset 0 0 20px rgba(0, 148, 255, 0.04);
+}
+.violet-border {
+  border-color: var(--violet);
+  box-shadow: 0 0 0 1px rgba(124, 106, 255, 0.25),
+              inset 0 0 20px rgba(124, 106, 255, 0.04);
+}
+
+/* ─────────────────────────────────────────────────────────
+   STATUS INDICATOR DOT
+───────────────────────────────────────────────────────── */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-dot.online  { background: var(--neon);   box-shadow: 0 0 8px 2px rgba(0,232,92,0.55); }
+.status-dot.offline { background: #2e3347; }
+.status-dot.warning { background: var(--amber);  box-shadow: 0 0 8px 2px rgba(245,158,11,0.55); }
+.status-dot.error   { background: var(--danger); box-shadow: 0 0 8px 2px rgba(255,77,109,0.55); }
+
+/* ─────────────────────────────────────────────────────────
+   LOG LINE COLOUR CLASSES
+───────────────────────────────────────────────────────── */
+.log-ngap   { color: #3db0ff; }
+.log-rrc    { color: #00e85c; }
+.log-nas    { color: #a78bfa; }
+.log-gtpu   { color: #fbbf24; }
+.log-mdt    { color: #f87171; }
+.log-tun    { color: #34d399; }
+.log-gnb    { color: #38bdf8; }
+.log-ue     { color: #c084fc; }
+.log-core   { color: #fb923c; }
+.log-info   { color: #94a3b8; }
+.log-warn   { color: #fbbf24; }
+.log-error  { color: #f87171; }
+.log-system { color: #64748b; }
+
+/* ─────────────────────────────────────────────────────────
+   SIDEBAR ACTIVE STATE
+───────────────────────────────────────────────────────── */
+.sidebar-link {
+  position: relative;
+  transition: all 0.2s ease;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.sidebar-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 56%;
+  background: linear-gradient(180deg, var(--violet) 0%, var(--signal) 100%);
+  border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 10px rgba(124, 106, 255, 0.7);
+}
+
+/* ─────────────────────────────────────────────────────────
+   FILTER PILL CLASSES
+───────────────────────────────────────────────────────── */
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px;
+  border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: #64748b;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+  letter-spacing: 0.01em;
+}
+.filter-pill:hover {
+  color: #cbd5e1;
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.15);
+}
+.filter-pill-active {
+  background: rgba(124,106,255,0.14);
+  border-color: rgba(124,106,255,0.45);
+  color: #a9a0ff;
+  box-shadow: 0 0 10px rgba(124,106,255,0.2);
+}
+
+/* ─────────────────────────────────────────────────────────
+   ANIMATED GRID BACKGROUND
+───────────────────────────────────────────────────────── */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(124, 106, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 106, 255, 0.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+/* ─────────────────────────────────────────────────────────
+   TERMINAL CURSOR
+───────────────────────────────────────────────────────── */
+.terminal-cursor::after {
+  content: '▋';
+  display: inline-block;
+  color: var(--neon);
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ─────────────────────────────────────────────────────────
+   SHIMMER ANIMATION
+───────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.shimmer {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.06) 50%,
+    transparent 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 2.5s linear infinite;
+}
+
+/* ─────────────────────────────────────────────────────────
+   SCAN LINE EFFECT (subtle CRT)
+───────────────────────────────────────────────────────── */
+.scanlines::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.06) 2px,
+    rgba(0, 0, 0, 0.06) 4px
+  );
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+/* ─────────────────────────────────────────────────────────
+   CARD HOVER LIFT
+───────────────────────────────────────────────────────── */
+.card-hover {
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.5);
+}
+
+/* ─────────────────────────────────────────────────────────
+   TOPOLOGY NODE PULSE
+───────────────────────────────────────────────────────── */
+.node-pulse {
+  animation: nodePulse 2.5s ease-in-out infinite;
+}
+@keyframes nodePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 232, 92, 0.35); }
+  50%       { box-shadow: 0 0 0 14px rgba(0, 232, 92, 0); }
+}
+
+/* ─────────────────────────────────────────────────────────
+   LINK FLOW ANIMATION
+───────────────────────────────────────────────────────── */
+@keyframes flowDot {
+  0%   { left: 0%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+.flow-dot {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: flowDot 2s ease-in-out infinite;
+}
+
+/* ─────────────────────────────────────────────────────────
+   GRADIENT BRAND
+───────────────────────────────────────────────────────── */
+.brand-gradient {
+  background: linear-gradient(135deg, var(--neon) 0%, var(--violet) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.brand-gradient-signal {
+  background: linear-gradient(135deg, var(--violet) 0%, var(--signal) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─────────────────────────────────────────────────────────
+   TOOLTIP
+───────────────────────────────────────────────────────── */
+.tooltip-arrow::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: rgba(30, 32, 48, 0.95);
+}
