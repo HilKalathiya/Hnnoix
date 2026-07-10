@@ -8,8 +8,8 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Wifi,
   Activity,
+  Wifi,
 } from 'lucide-react'
 
 const primaryNav = [
@@ -19,6 +19,7 @@ const primaryNav = [
     icon: LayoutDashboard,
     description: 'Live topology map',
     color: 'text-neon-400',
+    accent: '#00e85c',
     glow: 'rgba(0,232,92,0.25)',
   },
   {
@@ -27,6 +28,7 @@ const primaryNav = [
     icon: ScrollText,
     description: 'Real-time log stream',
     color: 'text-signal-400',
+    accent: '#0094ff',
     glow: 'rgba(0,148,255,0.25)',
   },
   {
@@ -35,6 +37,7 @@ const primaryNav = [
     icon: Settings2,
     description: 'Network parameters',
     color: 'text-violet-400',
+    accent: '#7c6aff',
     glow: 'rgba(124,106,255,0.25)',
   },
 ]
@@ -46,6 +49,7 @@ const moduleNav = [
     icon: Radio,
     description: 'Self-organizing network',
     color: 'text-purple-400',
+    accent: '#c084fc',
     glow: 'rgba(192,132,252,0.25)',
   },
   {
@@ -54,6 +58,7 @@ const moduleNav = [
     icon: BarChart3,
     description: 'Drive test minimization',
     color: 'text-amber-400',
+    accent: '#f59e0b',
     glow: 'rgba(251,191,36,0.25)',
   },
 ]
@@ -65,6 +70,7 @@ const bottomNav = [
     icon: Settings,
     description: 'App preferences',
     color: 'text-slate-400',
+    accent: '#64748b',
     glow: 'rgba(148,163,184,0.15)',
   },
 ]
@@ -76,19 +82,49 @@ const networkStatus = [
 ]
 
 const STATUS_STYLES = {
-  online:  { dot: 'bg-neon-400',   shadow: '0 0 8px 2px rgba(0,232,92,0.55)',    label: 'text-neon-400',  bg: 'bg-neon-400/8'   },
-  offline: { dot: 'bg-slate-700',  shadow: 'none',                                label: 'text-slate-600', bg: 'bg-slate-800/30' },
-  warning: { dot: 'bg-amber-400',  shadow: '0 0 8px 2px rgba(245,158,11,0.55)',  label: 'text-amber-400', bg: 'bg-amber-400/8'  },
-  error:   { dot: 'bg-red-400',    shadow: '0 0 8px 2px rgba(248,113,113,0.55)', label: 'text-red-400',   bg: 'bg-red-400/8'    },
+  online:  { dot: '#00e85c',  shadow: '0 0 8px 2px rgba(0,232,92,0.55)',    label: 'text-neon-400',  bg: 'rgba(0,232,92,0.06)'    },
+  offline: { dot: '#2e3347',  shadow: 'none',                                label: 'text-slate-600', bg: 'rgba(30,35,52,0.3)'     },
+  warning: { dot: '#f59e0b',  shadow: '0 0 8px 2px rgba(245,158,11,0.55)',  label: 'text-amber-400', bg: 'rgba(245,158,11,0.06)'  },
+  error:   { dot: '#ff4d6d',  shadow: '0 0 8px 2px rgba(255,77,109,0.55)',  label: 'text-red-400',   bg: 'rgba(255,77,109,0.06)'  },
 }
 
 function StatusDot({ status }) {
   const s = STATUS_STYLES[status] ?? STATUS_STYLES.offline
   return (
     <span
-      className={`inline-block w-2 h-2 rounded-full shrink-0 ${s.dot}`}
-      style={{ boxShadow: s.shadow }}
+      className="inline-block w-2 h-2 rounded-full shrink-0"
+      style={{ background: s.dot, boxShadow: s.shadow }}
     />
+  )
+}
+
+// Premium SVG logo for sidebar
+function SidebarLogo() {
+  return (
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="sbLogoG1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#00e85c" />
+          <stop offset="100%" stopColor="#7c6aff" />
+        </linearGradient>
+        <linearGradient id="sbLogoG2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#7c6aff" />
+          <stop offset="100%" stopColor="#0094ff" />
+        </linearGradient>
+      </defs>
+      <rect width="36" height="36" rx="10" fill="url(#sbLogoG1)" opacity="0.15" />
+      <rect width="36" height="36" rx="10" stroke="url(#sbLogoG1)" strokeWidth="1" fill="none" opacity="0.4" />
+      {/* Signal tower */}
+      <line x1="18" y1="8" x2="18" y2="26" stroke="url(#sbLogoG1)" strokeWidth="2" strokeLinecap="round" />
+      <line x1="13" y1="22" x2="23" y2="22" stroke="url(#sbLogoG1)" strokeWidth="1.5" strokeLinecap="round" />
+      {/* Signal arcs */}
+      <path d="M10 16 Q10 10 18 10 Q26 10 26 16" stroke="url(#sbLogoG2)" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      <path d="M6 20 Q6 8 18 8 Q30 8 30 20" stroke="url(#sbLogoG2)" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.5" />
+      {/* Beacon */}
+      <circle cx="18" cy="8" r="2.5" fill="url(#sbLogoG1)" />
+      {/* Base */}
+      <path d="M14 26 L12 30 L24 30 L22 26" stroke="url(#sbLogoG1)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </svg>
   )
 }
 
@@ -97,23 +133,25 @@ function NavSection({ items, collapsed, label }) {
     <div className="mb-1">
       {!collapsed && label && (
         <div className="px-4 pt-3 pb-1.5">
-          <p className="text-[10px] uppercase tracking-[0.14em] text-slate-700 font-bold">
+          <p className="text-[10px] uppercase tracking-[0.16em] text-slate-700 font-bold">
             {label}
           </p>
         </div>
       )}
       {collapsed && label && <div className="h-3" />}
       <ul className="space-y-0.5 px-2">
-        {items.map(({ to, label: itemLabel, icon: Icon, description, color, glow }) => (
+        {items.map(({ to, label: itemLabel, icon: Icon, description, color, accent, glow }) => (
           <li key={to}>
             <NavLink
               to={to}
+              end
+              data-accent={accent}
               className={({ isActive }) =>
                 `sidebar-link flex items-center gap-3 px-2.5 py-2.5 rounded-xl
-                 transition-all duration-200 group relative
+                 transition-all duration-150 group relative
                  ${isActive
-                   ? 'active bg-gradient-to-r from-violet-500/12 to-signal-500/5 text-slate-100'
-                   : 'text-slate-500 hover:text-slate-200 hover:bg-white/[0.04]'
+                   ? 'is-active text-slate-100'
+                   : 'text-slate-500 hover:text-slate-200'
                  }`
               }
               title={collapsed ? itemLabel : undefined}
@@ -125,16 +163,16 @@ function NavSection({ items, collapsed, label }) {
                     style={{ width: '18px', height: '18px' }}
                   />
                   {!collapsed && (
-                    <span className="truncate animate-fade-in">{itemLabel}</span>
+                    <span className="truncate animate-fade-in font-medium">{itemLabel}</span>
                   )}
 
-                  {/* Active indicator dot */}
+                  {/* Active glow dot */}
                   {isActive && !collapsed && (
                     <span
                       className="ml-auto w-1.5 h-1.5 rounded-full shrink-0"
                       style={{
-                        background: glow.replace('0.25', '1'),
-                        boxShadow: `0 0 6px 2px ${glow}`,
+                        background: accent,
+                        boxShadow: `0 0 8px 2px ${glow}`,
                       }}
                     />
                   )}
@@ -146,7 +184,7 @@ function NavSection({ items, collapsed, label }) {
                                   text-xs whitespace-nowrap opacity-0 group-hover:opacity-100
                                   pointer-events-none transition-all duration-150 z-50
                                   border border-white/10"
-                      style={{ background: 'rgba(14,16,24,0.97)', backdropFilter: 'blur(12px)' }}
+                      style={{ background: 'rgba(12,14,22,0.97)', backdropFilter: 'blur(16px)' }}
                     >
                       <div className="font-semibold text-slate-200 text-[13px]">{itemLabel}</div>
                       <div className="text-slate-500 text-[11px] mt-0.5">{description}</div>
@@ -171,22 +209,14 @@ export default function Sidebar({ collapsed, onToggle }) {
       {/* ── LOGO AREA ───────────────────────────────── */}
       <div className="flex items-center h-[58px] px-3 border-b border-white/[0.05] shrink-0">
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          {/* Icon mark */}
+          {/* Premium logo mark */}
           <div className="relative flex-shrink-0">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{
-                background: 'linear-gradient(135deg, rgba(0,232,92,0.9) 0%, rgba(124,106,255,0.9) 100%)',
-                boxShadow: '0 0 18px rgba(124,106,255,0.4), 0 2px 8px rgba(0,0,0,0.5)',
-              }}
-            >
-              <Wifi className="w-5 h-5 text-white" strokeWidth={2.5} />
-            </div>
+            <SidebarLogo />
             <span
-              className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#07080c]"
+              className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[#07080c]"
               style={{
                 background: 'var(--neon)',
-                boxShadow: '0 0 6px rgba(0,232,92,0.7)',
+                boxShadow: '0 0 8px rgba(0,232,92,0.8)',
                 animation: 'pulse 2s ease-in-out infinite',
               }}
             />
@@ -195,10 +225,13 @@ export default function Sidebar({ collapsed, onToggle }) {
           {/* Wordmark */}
           {!collapsed && (
             <div className="min-w-0 animate-fade-in">
-              <div className="text-[15px] font-bold leading-tight brand-gradient tracking-tight">
+              <div
+                className="text-[15px] font-extrabold leading-tight brand-gradient tracking-tight"
+                style={{ fontFamily: "'Syne', sans-serif", letterSpacing: '-0.02em' }}
+              >
                 Duranta
               </div>
-              <div className="text-[11px] text-slate-600 leading-tight font-mono tracking-wide">
+              <div className="text-[10.5px] text-slate-500 leading-tight font-mono tracking-wide font-semibold">
                 Open5GS GUI
               </div>
             </div>
@@ -209,7 +242,7 @@ export default function Sidebar({ collapsed, onToggle }) {
         <button
           onClick={onToggle}
           className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center
-                     text-slate-600 hover:text-slate-300 hover:bg-white/[0.06] transition-all duration-150"
+                     text-slate-600 hover:text-slate-300 hover:bg-white/[0.07] transition-all duration-150"
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed
@@ -224,7 +257,7 @@ export default function Sidebar({ collapsed, onToggle }) {
 
         {/* Divider */}
         {!collapsed && (
-          <div className="mx-3 my-1 border-t border-white/[0.05]" />
+          <div className="mx-4 my-1" style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)' }} />
         )}
 
         <NavSection items={moduleNav} collapsed={collapsed} label="Modules" />
@@ -241,7 +274,7 @@ export default function Sidebar({ collapsed, onToggle }) {
           <div>
             <div className="flex items-center gap-2 mb-2.5">
               <Activity className="w-3.5 h-3.5 text-slate-600" />
-              <span className="text-[10px] uppercase tracking-[0.14em] text-slate-700 font-bold">
+              <span className="text-[10px] uppercase tracking-[0.16em] text-slate-700 font-bold">
                 Network Status
               </span>
             </div>
@@ -251,13 +284,14 @@ export default function Sidebar({ collapsed, onToggle }) {
                 return (
                   <div
                     key={label}
-                    className={`flex items-center justify-between px-2.5 py-2 rounded-lg ${s.bg} transition-colors`}
+                    className="flex items-center justify-between px-2.5 py-2 rounded-lg transition-colors"
+                    style={{ background: s.bg, border: '1px solid rgba(255,255,255,0.04)' }}
                   >
                     <div className="flex items-center gap-2">
                       <StatusDot status={status} />
                       <span className="text-[12px] text-slate-400 font-mono font-medium tracking-wide">{label}</span>
                     </div>
-                    <span className={`text-[11px] capitalize font-semibold ${s.label}`}>
+                    <span className={`text-[10px] capitalize font-bold ${s.label} uppercase tracking-wider`}>
                       {status}
                     </span>
                   </div>

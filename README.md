@@ -1,69 +1,230 @@
 # Duranta Open5GS GUI 📡
 
-Welcome to the **Duranta Open5GS GUI**! 
+<p align="center">
+  <img src="./public/screenshots/dashboard-overview.png" alt="Duranta Open5GS GUI Dashboard" width="100%" />
+</p>
 
-This dashboard is a next-generation control panel designed to act as the visual frontend for the **Duranta OpenAirInterface5G (OAI)** codebase and the **Open5GS** core network. 
+Welcome to the **Duranta Open5GS GUI** — a world-class, next-generation control panel designed as the visual frontend for the **Duranta OpenAirInterface5G (OAI)** codebase and the **Open5GS** 5G core network.
 
-Instead of dealing with complex Linux terminal commands and manually editing `.conf` files, this UI provides a sleek, modern, dark-mode interface to manage, monitor, and configure a complete simulated 5G network (including the Core, the Base Station, and the User Equipment) right from your browser.
+Instead of dealing with complex Linux terminal commands and manually editing `.conf` files, this UI provides a sleek, dark-mode interface to manage, monitor, and configure a complete simulated 5G network (Core, Base Station, and User Equipment) right from your browser.
 
 ---
 
-## 🌟 What is this project actually doing?
+## 🌟 What Is This Project Actually Doing?
 
 To run a private 5G network locally without expensive hardware, we use software simulators. A 5G network consists of three main pieces:
-1. **The Core Network (AMF, UPF, etc.)**: We use Open5GS for this. It acts as the brain, handling internet routing and subscriber authentication.
-2. **The Base Station / Tower (gNB)**: We use the `nr-softmodem` binary from the Duranta OAI codebase to simulate the cell tower broadcasting radio waves.
-3. **The Mobile Phone (UE)**: We use the `nr-uesoftmodem` binary to simulate a 5G smartphone connecting to our tower.
 
-This frontend acts as the **"Conductor"** for all three pieces. It allows you to configure how they talk to each other, start/stop the services, and visually monitor the highly complex 3GPP protocol messages (like RRC, NGAP, and NAS) flowing between them in real-time.
+1. **The Core Network (AMF, UPF, etc.)** — We use **Open5GS** for this. It acts as the brain, handling internet routing and subscriber authentication.
+2. **The Base Station / Tower (gNB)** — We use the `nr-softmodem` binary from the Duranta OAI codebase to simulate the cell tower broadcasting radio waves.
+3. **The Mobile Phone (UE)** — We use the `nr-uesoftmodem` binary to simulate a 5G smartphone connecting to our tower.
+
+This frontend acts as the **"Conductor"** for all three pieces — configure how they talk to each other, start/stop services, and visually monitor complex 3GPP protocol messages (RRC, NGAP, NAS) flowing between them in real-time.
+
+---
+
+## 🧙 Setup Wizard — Step-by-Step Guide
+
+When you first launch the application (or navigate to `/welcome`), you are greeted by the **3-step Setup Wizard**. This wizard automates the entire process of getting the network stack ready.
+
+> **Note:** By default, the wizard runs in **MOCK MODE** — it simulates all steps without a running backend. See [Disabling Mock Mode](#disabling-mock-mode-connecting-to-your-backend) to connect to a real server.
+
+---
+
+### Step 1: Welcome Screen
+
+<p align="center">
+  <img src="./public/screenshots/wizard-step-1-welcome.png" alt="Setup Wizard — Step 1: Welcome" width="75%" />
+</p>
+
+**What you see:**
+- The **Duranta + Open5GS** branded title with a custom 5G signal tower logo
+- An animated particle network background showing the connectivity theme
+- A live terminal preview showing the dependency check commands that will run on your Linux machine
+- The **"Begin System Setup"** button to start the automation
+
+**What it does:**
+This screen is purely informational. It confirms the wizard is initializing and gives you a preview of the commands it is about to run. Clicking **Begin System Setup** transitions to Step 2.
+
+---
+
+### Step 2: Clone Repository
+
+<p align="center">
+  <img src="./public/screenshots/wizard-step-2-clone.png" alt="Setup Wizard — Step 2: Clone" width="75%" />
+</p>
+
+**What you see:**
+- A step indicator at the top showing progress (Step 2 of 3 highlighted)
+- A spinner while the clone operation runs
+- A terminal window showing the live `git clone` output
+- A success (✓) or error (✕) icon once the operation completes
+- **"Proceed to Build"** button on success, or **"Retry Clone"** on failure
+
+**What it does:**
+This step calls the backend endpoint `POST /api/setup`. The backend executes:
+```bash
+git clone https://github.com/duranta-project/openairinterface5g
+```
+It clones the Duranta fork of the OpenAirInterface5G repository to your Linux machine's disk. This is required before the build step can run.
+
+**Expected duration:** 1–3 minutes depending on your internet speed.
+
+---
+
+### Step 3: Compile Binaries (Build)
+
+<p align="center">
+  <img src="./public/screenshots/wizard-step-3-build.png" alt="Setup Wizard — Step 3: Build (Running)" width="75%" />
+</p>
+
+**What you see:**
+- A spinning violet loader while compilation is in progress
+- A live **compilation progress bar** that fills from 0% to 100%
+- A terminal window showing `cmake` and `make` output
+- A success state once both binaries are compiled
+
+<p align="center">
+  <img src="./public/screenshots/wizard-step-3-build-success.png" alt="Setup Wizard — Step 3: Build (Success)" width="75%" />
+</p>
+
+**What it does:**
+This step calls the backend endpoint `POST /api/build`. The backend executes:
+```bash
+cmake .. -DCMAKE_BUILD_TYPE=Release
+make -j$(nproc) nr-softmodem nr-uesoftmodem
+```
+This compiles the two critical binaries:
+- **`nr-softmodem`** — The gNB (base station / cell tower) process
+- **`nr-uesoftmodem`** — The nrUE (simulated 5G handset) process
+
+**Expected duration:** 5–15 minutes depending on your CPU core count. **Do not close the browser window** during this step.
+
+Once complete, clicking **"Launch Dashboard"** takes you to the main application.
+
+---
+
+## 🔓 Disabling Mock Mode (Connecting to Your Backend)
+
+By default, the wizard runs in **MOCK MODE** — it simulates the API calls with fake delays so you can view the UI without a backend. When your real backend server is running, you must disable this.
+
+### Step 1: Open the wizard file
+
+Open the file:
+```
+src/pages/SetupWizard.jsx
+```
+
+### Step 2: Change `DEV_MOCK` to `false`
+
+Find these two constants near the top of the file (around lines 6–11):
+
+```javascript
+// ─── API Base URL ─────────────────────────────────────────────────────────
+// Swap this for your actual backend URL, e.g. "http://localhost:3000"
+const API_BASE = ''
+
+// ─── DEV MOCK ─────────────────────────────────────────────────────────────
+// Set to true to simulate API success without a running backend.
+// Set to false (or remove) when your real backend is live.
+const DEV_MOCK = true   // ← CHANGE THIS TO false
+```
+
+Change them to:
+
+```javascript
+// Point this to your backend server
+const API_BASE = 'http://localhost:8000'  // ← your actual backend URL
+
+const DEV_MOCK = false  // ← backend is live
+```
+
+### Step 3: What your backend must expose
+
+Your backend (FastAPI, Express, etc.) must expose these two endpoints:
+
+| Method | Endpoint      | Description                                | Success Response              |
+|--------|---------------|--------------------------------------------|-------------------------------|
+| `GET`  | `/api/setup`  | Clones the OAI repository                  | `{ "success": true }`         |
+| `GET`  | `/api/build`  | Runs `cmake` + `make` to compile binaries  | `{ "success": true }`         |
+
+On failure, both endpoints should return:
+```json
+{ "success": false, "message": "Descriptive error message" }
+```
+
+> ⚠️ **Important:** The endpoints must return `Content-Type: application/json`. If they return HTML (like a 404 page), the wizard will display a helpful error: *"Server returned HTTP 404 — expected JSON but got HTML."*
+
+### Step 4: CORS (if backend is on a different port)
+
+If your Vite dev server runs on `http://localhost:5173` and your backend on `http://localhost:8000`, you must enable CORS on your backend. For **FastAPI**:
+
+```python
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
 
 ---
 
 ## 📸 Detailed Tour of the UI Features
 
-### 1. The Dashboard (Network Overview)
+### 1. Dashboard (Network Overview)
 ![Dashboard View](./public/screenshots/dashboard-overview.png)
 
 **What this UI part does:**
-- **Live Topology Map**: This animated graph represents the actual connection state between your Open5GS AMF (Core), your Duranta gNB (Tower), and your Duranta UE (Phone). When the glowing particles are moving, it means the N2 (NGAP) and RRC control-plane connections are successfully established!
-- **Network Status Panel (Sidebar)**: Quick indicators showing if the Core (`127.0.0.5`), the gNB (`NR-ARFCN`), and the UE (`IMSI:001`) processes are actually running on your Linux machine.
-- **KPI Cards (Top)**: These display real-time network metrics extracted directly from the underlying C-binaries, such as signal quality (RSRP) and data throughput.
+- **Live Topology Map**: This animated graph represents the connection state between your Open5GS AMF (Core), Duranta gNB (Tower), and Duranta UE (Phone). When nodes glow, connections are established.
+- **Network Status Panel (Sidebar)**: Quick indicators showing if Core (`127.0.0.5`), gNB (`NR-ARFCN`), and UE (`IMSI:001`) processes are running.
+- **KPI Cards**: Display real-time network metrics — signal quality (RSRP), throughput, and latency.
 
-### 2. Live Logs (The "Under the Hood" View)
+### 2. Live Logs (Under the Hood)
 ![Live Logs View](./public/screenshots/live-logs-main.png)
 
-**Smart Log Filtering Features:**
-*(These buttons allow you to instantly find the exact protocol messages you are looking for)*
+**Smart Log Filtering:**
 <p align="center">
   <img src="./public/screenshots/log-filters-1.png" width="48%" />
   <img src="./public/screenshots/log-filters-2.png" width="48%" />
 </p>
 
 **What this UI part does:**
-- **Real-Time Terminal Feed**: This window intercepts the raw standard output (stdout) from the `nr-softmodem` and `nr-uesoftmodem` processes. You are watching the actual C-code execute in real-time!
-- **Protocol Filter Pills**: Instead of reading a chaotic wall of text, you can click the filter pills at the top to isolate specific 5G layers:
-  - **`[NGAP]`**: Shows messages between the gNB and the AMF (e.g., `NGSetupRequest`).
-  - **`[RRC]`**: Shows radio resource control messages between the Phone and the Tower (e.g., `RRCSetupComplete`).
-  - **`[NAS]`**: Shows authentication and registration messages.
-  - **Warnings/Errors**: Instantly isolates issues like `RSRP_DROP` or connection failures.
+- **Real-Time Terminal Feed**: Intercepts raw stdout from `nr-softmodem` and `nr-uesoftmodem` processes.
+- **Protocol Filter Pills**: Isolate specific 5G protocol layers:
+  - **`[NGAP]`** — Messages between gNB and AMF (e.g., `NGSetupRequest`)
+  - **`[RRC]`** — Radio resource control messages (e.g., `RRCSetupComplete`)
+  - **`[NAS]`** — Authentication and registration messages
+  - **Warnings/Errors** — Instantly isolates `RSRP_DROP` or connection failures
 
 ### 3. Configuration (Network Settings)
 ![Configuration View](./public/screenshots/network-configuration.png)
 
 **What this UI part does:**
-This page replaces the tedious process of manually using `vim` to edit the complex `.conf` files. 
+This page replaces manual `vim` editing of complex `.conf` files.
+- **Subscriber Credentials (SIM)**: Edit IMSI, Key (K), and OPc fields to update the `uicc0` block inside your `ue.conf`
+- **PLMN & Core Parameters**: Update MCC, MNC, and AMF IP to configure the `plmn_list` and `amf_ip_address` in your gNB config
+- **Apply & Restart**: Safely saves files and restarts the underlying Linux processes
 
-- **Subscriber Credentials (SIM)**: When you edit the IMSI, Key (K), and OPc fields here, the UI updates the `uicc0` block inside your `ue.conf` file. These are the cryptographic keys that allow your simulated phone to authenticate with the Open5GS database.
-- **PLMN & Core Parameters**: When you update the MCC, MNC, and AMF IP, the UI updates the `plmn_list` and `amf_ip_address` inside your `gnb.sa.band78.fr1.106PRB.pci0.rfsim.conf` file so the tower knows exactly where to find the Core network.
-- **Apply & Restart Button**: Clicking this safely saves the configuration files to disk and restarts the underlying Linux processes so the network boots up with the new settings.
+### 4. MDT Module (Minimization of Drive Tests)
 
-### 4. Advanced Modules: MDT (Minimization of Drive Tests)
 **What this UI part does:**
-Normally, network engineers have to physically drive around cities in cars to test 5G signal strength. The **MDT Module** visualizes a feature we added to the OAI RRC C-code that makes the phone do the work automatically!
-- The phone (UE) constantly measures its signal strength (RSRP).
-- If the signal drops below a threshold (e.g., `low_rsrp` or `rsrp_drop`), the phone saves it in a 64-slot ring buffer.
-- The phone packages these samples into an ASN.1 `MeasurementReport` and sends it to the Tower.
-- This UI module intercepts those reports from the Tower's memory and displays them in beautiful charts so you can see exactly where and why the signal dropped without leaving your desk!
+Visualizes our custom MDT feature added to OAI RRC C-code:
+- The UE constantly measures signal strength (RSRP)
+- If signal drops below a threshold, it's saved in a 64-slot ring buffer
+- The UE packages samples into an ASN.1 `MeasurementReport` and sends it to the Tower
+- This UI intercepts those reports and displays them as a color-coded bar chart
+
+### 5. SON Module (Self-Organizing Network)
+
+A planned module for automatic optimization of:
+- Coverage (antenna tilt & power)
+- Handover (A3/A5 event thresholds)
+- Load balancing (UE redistribution)
+- Interference management (ICIC/eICIC)
+
+*Coming in a future sprint.*
 
 ---
 
@@ -90,54 +251,56 @@ Normally, network engineers have to physically drive around cities in cars to te
 
 ---
 
-## 💻 Setting up the Project on Another Device (Full Guide)
-
-If you want to take this project and run it on a totally different computer, follow this exact step-by-step guide!
+## 💻 Setting up the Project on Another Device
 
 ### Step 1: Install Node.js (Required)
-Before doing anything, the new device needs Node.js installed to run the application.
-1. Go to the official website: [https://nodejs.org/](https://nodejs.org/)
-2. Download the **LTS (Long Term Support)** version for your operating system (Windows, Mac, or Linux).
-3. Run the installer and click "Next" through all the default options. 
-4. To verify it worked, open your terminal (Command Prompt / PowerShell / Terminal) and type `node -v`. It should print a version number (like `v18.x.x`).
+1. Go to [https://nodejs.org/](https://nodejs.org/)
+2. Download the **LTS** version
+3. Verify: `node -v` should print a version number (e.g., `v18.x.x`)
 
 ### Step 2: Get the Code
-You need to get the source code onto the new device.
-- **If using Git**: 
-  Open your terminal and run:
-  `git clone <YOUR_GITHUB_REPO_URL>`
-  *(Replace the URL with your actual GitHub repository link!)*
-- **If using a ZIP file**:
-  Download the code as a ZIP file from GitHub, and extract the folder somewhere on your computer.
+```bash
+git clone <YOUR_GITHUB_REPO_URL>
+cd Hnnoix
+```
 
-### Step 3: Install the Project Dependencies
-The project uses many UI libraries (like Tailwind CSS and React) that aren't included in the source code directly to save space. We need to download them.
-1. Open your terminal.
-2. Navigate into the project folder you just downloaded:
-   ```bash
-   cd path/to/Hnnoix
-   ```
-3. Run the install command:
-   ```bash
-   npm install
-   ```
-   *(This might take a minute or two as it downloads everything into a `node_modules` folder).*
+### Step 3: Install Dependencies
+```bash
+npm install
+```
+*(Downloads everything into `node_modules` — takes 1–2 minutes)*
 
-### Step 4: Run the Application!
-Now that everything is installed, it's time to start the dashboard!
-1. In the same terminal, run:
-   ```bash
-   npm run dev
-   ```
-2. The terminal will print out a local web address. It usually looks like this:
-   `➜  Local:   http://localhost:5173/`
-3. Hold `Ctrl` (or `Cmd` on Mac) and click that link, OR copy and paste it into your web browser (Chrome/Edge/Safari).
-4. **Congratulations! The Duranta Open5GS GUI is now running on the new device.**
+### Step 4: Run the Application
+```bash
+npm run dev
+```
+Open the printed URL in your browser (usually `http://localhost:5173/`).
+
+The app will redirect you to `/welcome` — the Setup Wizard — on first load.
 
 ---
 
-## 🛠️ For Developers: Tech Stack
-- **Frontend Framework**: React 18 with Vite
-- **Styling**: Tailwind CSS for custom glassmorphism and dark-mode aesthetic
-- **Typography**: "Plus Jakarta Sans" for UI, "JetBrains Mono" for terminal logs
-- **Icons**: Lucide React
+## 📷 Screenshot Filenames to Capture
+
+To complete the README documentation, take screenshots of each wizard step and save them to `public/screenshots/`:
+
+| Screenshot File | What to Capture |
+|---|---|
+| `wizard-step-1-welcome.png` | The welcome screen of the Setup Wizard with the logo visible |
+| `wizard-step-2-clone.png` | Step 2 while the clone is in progress (spinner shown) |
+| `wizard-step-3-build.png` | Step 3 while build is compiling (progress bar shown) |
+| `wizard-step-3-build-success.png` | Step 3 after successful build (green checkmark + Launch button) |
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Frontend Framework** | React 18 with Vite 5 |
+| **Styling** | Tailwind CSS v3 with custom glassmorphism design system |
+| **Typography** | Plus Jakarta Sans (UI) · JetBrains Mono (terminal) |
+| **Icons** | Lucide React |
+| **Routing** | React Router v6 |
+| **Backend Protocol** | REST JSON API (FastAPI / Express) |
+| **5G Stack** | Duranta gNB (OAI fork) + Open5GS Core |

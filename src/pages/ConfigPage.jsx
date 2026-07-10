@@ -12,17 +12,22 @@ function useCopy() {
   return { copied, copy }
 }
 
-/* ─── Single input field ──────────────────────────────── */
+/* ─── Premium input field ──────────────────────────────── */
 function Field({ label, placeholder, value, onChange, type = 'text', mono = false, hint, copyable = false }) {
   const { copied, copy } = useCopy()
   return (
     <div className="group">
-      <div className="flex items-center justify-between mb-1.5">
-        <label className="text-[12px] font-semibold text-slate-400 tracking-wide uppercase">
+      <div className="flex items-center justify-between mb-2">
+        <label className="text-[11.5px] font-bold text-slate-300 tracking-[0.08em] uppercase">
           {label}
         </label>
         {hint && (
-          <span className="text-[10px] text-slate-700 font-mono">{hint}</span>
+          <span
+            className="text-[10px] font-mono px-1.5 py-0.5 rounded"
+            style={{ color: '#475569', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
+          >
+            {hint}
+          </span>
         )}
       </div>
       <div className="relative">
@@ -31,24 +36,8 @@ function Field({ label, placeholder, value, onChange, type = 'text', mono = fals
           placeholder={placeholder}
           value={value ?? ''}
           onChange={onChange}
-          className={`w-full px-4 py-3 rounded-xl text-[13px] text-slate-200
-                      placeholder-slate-700 focus:outline-none
-                      transition-all duration-200
-                      ${mono ? 'font-mono tracking-wider' : 'font-medium'}`}
-          style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.08)',
-          }}
-          onFocus={e => {
-            e.target.style.borderColor = 'rgba(124,106,255,0.45)'
-            e.target.style.background  = 'rgba(124,106,255,0.04)'
-            e.target.style.boxShadow   = '0 0 0 3px rgba(124,106,255,0.1), 0 0 16px rgba(124,106,255,0.08)'
-          }}
-          onBlur={e => {
-            e.target.style.borderColor = 'rgba(255,255,255,0.08)'
-            e.target.style.background  = 'rgba(255,255,255,0.03)'
-            e.target.style.boxShadow   = 'none'
-          }}
+          className={`premium-input ${mono ? 'font-mono tracking-wider text-[12px]' : 'font-medium text-[13px]'}`}
+          style={{ paddingRight: copyable ? '40px' : '16px' }}
         />
         {copyable && (
           <button
@@ -69,51 +58,54 @@ function Field({ label, placeholder, value, onChange, type = 'text', mono = fals
   )
 }
 
-/* ─── Section card ────────────────────────────────────── */
-function Section({ icon: Icon, title, subtitle, accentColor, children }) {
+/* ─── Premium section card ─────────────────────────────── */
+function Section({ icon: Icon, title, subtitle, accentColor, badge, children }) {
   return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{
-        background: 'rgba(13,15,24,0.85)',
-        border: '1px solid rgba(255,255,255,0.07)',
-        boxShadow: '0 4px 32px rgba(0,0,0,0.35)',
-      }}
-    >
-      {/* Section header */}
+    <div className="section-card">
+      {/* Premium gradient section header */}
       <div
-        className="flex items-center gap-3 px-6 py-4"
+        className="flex items-center gap-3 px-6 py-4 relative overflow-hidden"
         style={{
-          background: 'rgba(255,255,255,0.02)',
+          background: `linear-gradient(90deg, ${accentColor}0a 0%, rgba(255,255,255,0.015) 100%)`,
           borderBottom: '1px solid rgba(255,255,255,0.06)',
         }}
       >
+        {/* Accent left border */}
+        <div
+          className="absolute left-0 top-0 bottom-0 w-0.5"
+          style={{ background: `linear-gradient(180deg, ${accentColor} 0%, ${accentColor}44 100%)`, boxShadow: `2px 0 12px ${accentColor}40` }}
+        />
+
         <div
           className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
           style={{
-            background: `${accentColor}14`,
-            border: `1px solid ${accentColor}30`,
-            boxShadow: `0 0 14px ${accentColor}12`,
+            background: `${accentColor}16`,
+            border: `1px solid ${accentColor}2e`,
+            boxShadow: `0 0 16px ${accentColor}16`,
           }}
         >
-          <Icon className="w-4.5 h-4.5" style={{ color: accentColor, width: '18px', height: '18px' }} />
+          <Icon style={{ color: accentColor, width: '18px', height: '18px' }} />
         </div>
-        <div>
+        <div className="flex-1 min-w-0">
           <h3
-            className="text-[14px] font-bold text-slate-100 tracking-tight"
+            className="text-[15px] font-bold text-slate-100 tracking-tight"
+            style={{ fontFamily: "'Syne', sans-serif" }}
           >
             {title}
           </h3>
           {subtitle && (
-            <p className="text-[11px] text-slate-600 font-medium mt-0.5">{subtitle}</p>
+            <p className="text-[11.5px] text-slate-400 font-medium mt-0.5">{subtitle}</p>
           )}
         </div>
 
-        {/* Top accent line */}
-        <div
-          className="ml-auto h-px w-12 rounded-full"
-          style={{ background: `linear-gradient(90deg, ${accentColor}60, transparent)` }}
-        />
+        {badge && (
+          <span
+            className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-full shrink-0"
+            style={{ background: `${accentColor}12`, border: `1px solid ${accentColor}30`, color: accentColor }}
+          >
+            {badge}
+          </span>
+        )}
       </div>
 
       {/* Fields grid */}
@@ -124,7 +116,7 @@ function Section({ icon: Icon, title, subtitle, accentColor, children }) {
   )
 }
 
-/* ─── Page ────────────────────────────────────────────── */
+/* ─── Page ─────────────────────────────────────────────── */
 export default function ConfigPage() {
   const [saved, setSaved] = useState(false)
 
@@ -136,26 +128,35 @@ export default function ConfigPage() {
   return (
     <div className="p-6 space-y-5 animate-fade-in max-w-4xl mx-auto">
 
-      {/* ── Page header ──────────────────────────────── */}
+      {/* ── Premium Page header ───────────────────────── */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2
-            className="text-[22px] font-bold text-slate-100 tracking-tight leading-tight"
-          >
-            Network Profile
-          </h2>
-          <p className="text-[13px] text-slate-500 mt-1 font-medium">
-            Subscriber identity & RAN parameters
+          <div className="flex items-center gap-2 mb-1">
+            <h2
+              className="text-[24px] font-extrabold text-slate-100 tracking-tight leading-tight"
+              style={{ fontFamily: "'Syne', sans-serif" }}
+            >
+              Network Profile
+            </h2>
+            <span
+              className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full"
+              style={{ background: 'rgba(124,106,255,0.1)', border: '1px solid rgba(124,106,255,0.25)', color: '#a09aff' }}
+            >
+              RF-SIM
+            </span>
+          </div>
+          <p className="text-[13.5px] text-slate-400 font-medium">
+            Subscriber identity &amp; RAN parameters for your 5G network
           </p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
           {/* Reset button */}
           <button
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-200"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-bold transition-all duration-200 active:scale-95"
             style={{
               background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.09)',
+              border: '1px solid rgba(255,255,255,0.08)',
               color: '#64748b',
             }}
             onMouseEnter={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = 'rgba(255,255,255,0.07)' }}
@@ -168,39 +169,48 @@ export default function ConfigPage() {
           {/* Apply & Restart */}
           <button
             onClick={handleApply}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-200 active:scale-95"
+            className="btn-shimmer flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-200 active:scale-95"
             style={saved ? {
-              background: 'rgba(0,232,92,0.15)',
+              background: 'rgba(0,232,92,0.12)',
               border: '1px solid rgba(0,232,92,0.4)',
               color: '#00e85c',
-              boxShadow: '0 0 16px rgba(0,232,92,0.2)',
+              boxShadow: '0 0 20px rgba(0,232,92,0.2)',
             } : {
-              background: 'linear-gradient(135deg, rgba(124,106,255,0.2) 0%, rgba(0,148,255,0.15) 100%)',
+              background: 'linear-gradient(135deg, rgba(124,106,255,0.22) 0%, rgba(0,148,255,0.16) 100%)',
               border: '1px solid rgba(124,106,255,0.4)',
               color: '#a9a0ff',
-              boxShadow: '0 0 16px rgba(124,106,255,0.15)',
+              boxShadow: '0 4px 16px rgba(124,106,255,0.18)',
             }}
           >
             {saved
               ? <><Check className="w-4 h-4" /> Applied!</>
-              : <><Save  className="w-4 h-4" /> Apply & Restart</>
+              : <><Save  className="w-4 h-4" /> Apply &amp; Restart</>
             }
           </button>
         </div>
       </div>
 
-      {/* ── Warning banner ───────────────────────────── */}
+      {/* ── Premium Warning banner ────────────────────── */}
       <div
-        className="flex items-center gap-3 px-4 py-3 rounded-xl"
+        className="flex items-center gap-3 px-4 py-3.5 rounded-xl"
         style={{
-          background: 'rgba(245,158,11,0.07)',
-          border: '1px solid rgba(245,158,11,0.18)',
+          background: 'linear-gradient(90deg, rgba(245,158,11,0.07) 0%, rgba(245,158,11,0.03) 100%)',
+          border: '1px solid rgba(245,158,11,0.2)',
+          boxShadow: '0 0 20px rgba(245,158,11,0.05)',
         }}
       >
-        <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
-        <p className="text-[12px] text-amber-600 font-medium">
-          Changes will restart the network stack. All active sessions will be terminated.
-        </p>
+        <div
+          className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+          style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)' }}
+        >
+          <AlertTriangle className="w-4 h-4 text-amber-400" />
+        </div>
+        <div>
+          <p className="text-[12px] text-amber-400 font-bold">Network Restart Required</p>
+          <p className="text-[11px] text-amber-600 font-medium mt-0.5">
+            Changes will restart the network stack. All active sessions will be terminated.
+          </p>
+        </div>
       </div>
 
       {/* ── SIM Credentials ──────────────────────────── */}
@@ -209,32 +219,35 @@ export default function ConfigPage() {
         title="Subscriber Credentials (SIM)"
         subtitle="USIM identity & authentication keys"
         accentColor="#7c6aff"
+        badge="USIM"
       >
-        <Field label="IMSI"   placeholder="001010000000001"                   mono copyable hint="15 digits" />
-        <Field label="Key (K)" placeholder="00000000000000000000000000000001" mono copyable hint="128-bit hex" />
-        <Field label="OPc"    placeholder="00000000000000000000000000000001"  mono copyable hint="128-bit hex" />
-        <Field label="OP"     placeholder="00000000000000000000000000000001"  mono copyable hint="optional" />
+        <Field label="IMSI"    placeholder="001010000000001"                   mono copyable hint="15 digits" />
+        <Field label="Key (K)" placeholder="00000000000000000000000000000001"  mono copyable hint="128-bit hex" />
+        <Field label="OPc"     placeholder="00000000000000000000000000000001"  mono copyable hint="128-bit hex" />
+        <Field label="OP"      placeholder="00000000000000000000000000000001"  mono copyable hint="optional" />
       </Section>
 
-      {/* ── PLMN & Core ──────────────────────────────── */}
+      {/* ── PLMN & Core ───────────────────────────────── */}
       <Section
         icon={Globe}
         title="PLMN & Core Parameters"
         subtitle="Mobile country / network code and AMF endpoint"
         accentColor="#0094ff"
+        badge="5GC"
       >
-        <Field label="MCC"      placeholder="001"      mono copyable hint="3 digits" />
-        <Field label="MNC"      placeholder="01"       mono copyable hint="2–3 digits" />
+        <Field label="MCC"      placeholder="001"       mono copyable hint="3 digits" />
+        <Field label="MNC"      placeholder="01"        mono copyable hint="2–3 digits" />
         <Field label="AMF IP"   placeholder="127.0.0.5" mono copyable />
-        <Field label="PLMN ID"  placeholder="00101"   mono copyable />
+        <Field label="PLMN ID"  placeholder="00101"     mono copyable />
       </Section>
 
-      {/* ── RAN / gNB ────────────────────────────────── */}
+      {/* ── RAN / gNB ─────────────────────────────────── */}
       <Section
         icon={Cpu}
         title="RAN / gNB Parameters"
         subtitle="Radio access network and base station configuration"
         accentColor="#00e85c"
+        badge="gNB"
       >
         <Field label="NR-ARFCN"          placeholder="641272" mono copyable hint="FR1 / FR2" />
         <Field label="Bandwidth (PRBs)"  placeholder="106"    mono copyable hint="100 MHz = 66 PRBs" />

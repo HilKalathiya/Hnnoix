@@ -12,9 +12,9 @@ const PAGE_TITLES = {
 }
 
 const MOCK_STATS = [
-  { icon: Signal, label: 'RSRP',    value: '— dBm', accent: 'rgba(0,232,92,0.9)',    glow: 'rgba(0,232,92,0.12)'    },
-  { icon: Cpu,    label: 'gNB PID', value: '—',      accent: 'rgba(0,148,255,0.9)',   glow: 'rgba(0,148,255,0.12)'   },
-  { icon: Globe,  label: 'UE IPv4', value: '—',      accent: 'rgba(124,106,255,0.9)', glow: 'rgba(124,106,255,0.12)' },
+  { icon: Signal, label: 'RSRP',    value: '— dBm', accent: '#00e85c',   glow: 'rgba(0,232,92,0.1)'    },
+  { icon: Cpu,    label: 'gNB PID', value: '—',      accent: '#0094ff',   glow: 'rgba(0,148,255,0.1)'   },
+  { icon: Globe,  label: 'UE IPv4', value: '—',      accent: '#7c6aff',   glow: 'rgba(124,106,255,0.1)' },
 ]
 
 function LiveClock() {
@@ -31,8 +31,8 @@ function LiveClock() {
       style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
     >
       <span
-        className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0"
-        style={{ background: 'var(--neon)', boxShadow: '0 0 5px var(--neon)' }}
+        className="w-1.5 h-1.5 rounded-full shrink-0"
+        style={{ background: 'var(--neon)', boxShadow: '0 0 6px var(--neon)', animation: 'pulse 2s ease-in-out infinite' }}
       />
       <span className="text-[12px] font-mono text-slate-400 tabular-nums tracking-wider">{time} IST</span>
     </div>
@@ -46,13 +46,20 @@ export default function Navbar({ onMenuToggle }) {
 
   return (
     <header
-      className="flex items-center h-[58px] px-5 border-b border-white/[0.05] z-20 shrink-0 gap-3"
+      className="flex items-center h-[58px] px-5 border-b z-20 shrink-0 gap-3 relative"
       style={{
-        background: 'rgba(9,10,16,0.92)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+        background: 'rgba(8,9,15,0.94)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+        borderColor: 'rgba(255,255,255,0.05)',
       }}
     >
+      {/* Premium top accent line */}
+      <div
+        className="absolute top-0 left-0 right-0 h-px pointer-events-none"
+        style={{ background: 'linear-gradient(90deg, transparent, rgba(124,106,255,0.35), rgba(0,232,92,0.2), transparent)' }}
+      />
+
       {/* Hamburger (mobile) */}
       <button
         onClick={onMenuToggle}
@@ -64,10 +71,13 @@ export default function Navbar({ onMenuToggle }) {
 
       {/* Page title */}
       <div className="flex flex-col min-w-0">
-        <h1 className="text-[15px] font-bold text-slate-100 leading-tight tracking-tight">
+        <h1
+          className="text-[16px] font-bold text-slate-100 leading-tight tracking-tight"
+          style={{ fontFamily: "'Syne', sans-serif", letterSpacing: '-0.02em' }}
+        >
           {page.title}
         </h1>
-        <p className="text-[11px] text-slate-600 leading-tight truncate font-medium">{page.subtitle}</p>
+        <p className="text-[11.5px] text-slate-400 leading-tight truncate font-semibold">{page.subtitle}</p>
       </div>
 
       <div className="flex-1" />
@@ -77,11 +87,15 @@ export default function Navbar({ onMenuToggle }) {
         {MOCK_STATS.map(({ icon: Icon, label, value, accent, glow }) => (
           <div
             key={label}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 hover:scale-[1.02]"
-            style={{ background: glow, border: `1px solid ${accent.replace('0.9', '0.2')}` }}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-200 hover:scale-[1.03]"
+            style={{
+              background: glow,
+              border: `1px solid ${accent}25`,
+              cursor: 'default',
+            }}
           >
             <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: accent }} />
-            <span className="text-[11px] text-slate-500 font-semibold">{label}</span>
+            <span className="text-[10px] text-slate-600 font-semibold uppercase tracking-wider">{label}</span>
             <span className="text-[12px] font-mono font-bold tabular-nums" style={{ color: accent }}>
               {value}
             </span>
@@ -89,7 +103,7 @@ export default function Navbar({ onMenuToggle }) {
         ))}
       </div>
 
-      <div className="w-px h-5 bg-white/[0.08] mx-1 hidden md:block" />
+      <div className="w-px h-5 mx-1 hidden md:block" style={{ background: 'rgba(255,255,255,0.07)' }} />
 
       {/* Live clock */}
       <div className="hidden sm:block">
@@ -106,7 +120,7 @@ export default function Navbar({ onMenuToggle }) {
         {notifCount > 0 && (
           <span
             className="absolute top-1 right-1 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold"
-            style={{ background: 'var(--danger)', color: '#fff', boxShadow: '0 0 6px rgba(255,77,109,0.6)' }}
+            style={{ background: 'var(--danger)', color: '#fff', boxShadow: '0 0 8px rgba(255,77,109,0.6)' }}
           >
             {notifCount}
           </span>
@@ -115,18 +129,18 @@ export default function Navbar({ onMenuToggle }) {
 
       {/* MOCK badge */}
       <div
-        className="flex items-center gap-2 px-3 py-2 rounded-lg"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
         style={{
           background: 'rgba(245,158,11,0.08)',
-          border: '1px solid rgba(245,158,11,0.22)',
-          boxShadow: '0 0 12px rgba(245,158,11,0.08)',
+          border: '1px solid rgba(245,158,11,0.2)',
+          boxShadow: '0 0 14px rgba(245,158,11,0.08)',
         }}
       >
         <span
-          className="w-2 h-2 rounded-full animate-pulse shrink-0"
-          style={{ background: '#f59e0b', boxShadow: '0 0 5px rgba(245,158,11,0.8)' }}
+          className="w-1.5 h-1.5 rounded-full shrink-0"
+          style={{ background: '#f59e0b', boxShadow: '0 0 6px rgba(245,158,11,0.9)', animation: 'pulse 2s ease-in-out infinite' }}
         />
-        <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
+        <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">
           Mock
         </span>
       </div>
