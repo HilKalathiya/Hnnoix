@@ -203,10 +203,12 @@ function NavSection({ items, collapsed, label }) {
   )
 }
 
-export default function Sidebar({ collapsed, onToggle }) {
+export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   return (
     <aside
-      className="glass-sidebar flex flex-col z-30 transition-all duration-300 ease-in-out relative shrink-0"
+      className={`glass-sidebar flex flex-col z-40 transition-all duration-300 ease-in-out shrink-0
+                  fixed inset-y-0 left-0 lg:relative
+                  ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       style={{ width: collapsed ? '64px' : '248px' }}
     >
       {/* ── LOGO AREA ───────────────────────────────── */}
@@ -241,16 +243,25 @@ export default function Sidebar({ collapsed, onToggle }) {
           )}
         </div>
 
-        {/* Collapse toggle */}
+        {/* Collapse toggle (Desktop) */}
         <button
           onClick={onToggle}
-          className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center
+          className="hidden lg:flex flex-shrink-0 w-7 h-7 rounded-lg items-center justify-center
                      text-slate-600 hover:text-slate-300 hover:bg-white/[0.07] transition-all duration-150"
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed
             ? <ChevronRight className="w-4 h-4" />
             : <ChevronLeft  className="w-4 h-4" />}
+        </button>
+
+        {/* Close toggle (Mobile) */}
+        <button
+          onClick={onMobileClose}
+          className="lg:hidden flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center
+                     text-slate-600 hover:text-slate-300 hover:bg-white/[0.07] transition-all duration-150"
+        >
+          <ChevronLeft className="w-4 h-4" />
         </button>
       </div>
 

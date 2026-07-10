@@ -169,7 +169,7 @@ export default function ConfigPage() {
               <p className="text-slate-400 font-mono text-sm">Fetching configuration files...</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 h-full">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 h-full auto-rows-[minmax(300px,1fr)] lg:auto-rows-auto">
               <EditorPanel 
                 title="ue.conf" 
                 value={configs.ue} 
@@ -195,7 +195,7 @@ export default function ConfigPage() {
 
       {/* ── Sticky Bottom Action Bar ───────────────────── */}
       <div 
-        className="absolute bottom-0 left-0 right-0 px-6 py-4 flex items-center justify-between"
+        className="absolute bottom-0 left-0 right-0 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0"
         style={{
           background: 'rgba(12,14,22,0.85)',
           backdropFilter: 'blur(12px)',
@@ -205,7 +205,7 @@ export default function ConfigPage() {
       >
         <button
           onClick={handleReset}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-bold transition-all duration-200 active:scale-95"
+          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-bold transition-all duration-200 active:scale-95 w-full sm:w-auto"
           style={{
             background: 'rgba(255,255,255,0.04)',
             border: '1px solid rgba(255,255,255,0.08)',
@@ -218,9 +218,9 @@ export default function ConfigPage() {
           Reload from Server
         </button>
 
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
           <button
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-200 active:scale-95"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-200 active:scale-95 w-full sm:w-auto"
             style={{
               background: 'rgba(124,106,255,0.1)',
               border: '1px solid rgba(124,106,255,0.3)',
@@ -235,7 +235,7 @@ export default function ConfigPage() {
 
           <button
             onClick={handleApply}
-            className="btn-shimmer flex items-center gap-2 px-6 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-200 active:scale-95"
+            className="btn-shimmer flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-200 active:scale-95 w-full sm:w-auto"
             style={saved ? {
               background: 'rgba(0,232,92,0.12)',
               border: '1px solid rgba(0,232,92,0.4)',

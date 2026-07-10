@@ -97,11 +97,6 @@ function StatCard({ label, value, accent, icon: Icon }) {
 // ─── Main Component ───────────────────────────────────────
 export default function LogViewer() {
   const [logs,       setLogs]       = useState([])
-  const [streaming,  setStreaming]  = useState(true)
-  const [autoScroll, setAutoScroll] = useState(true)
-  const [filterTag,  setFilterTag]  = useState('ALL')
-  const [search,     setSearch]     = useState('')
-  const [showIndex,  setShowIndex]  = useState(true)
 
   const streamRef    = useRef(null)
 
@@ -110,9 +105,8 @@ export default function LogViewer() {
     setLogs(generateStartupBatch())
   }, [])
 
-  // Live stream
+  // Live stream always runs. Panes can choose to freeze their view.
   useEffect(() => {
-    if (!streaming) { clearInterval(streamRef.current); return }
     streamRef.current = setInterval(() => {
       const newEntries = Array.from({ length: BATCH_SIZE }, generateLogEntry)
       setLogs(prev => {
@@ -123,29 +117,12 @@ export default function LogViewer() {
       })
     }, STREAM_INTERVAL_MS)
     return () => clearInterval(streamRef.current)
-  }, [streaming])
-
-  // Auto-scroll removed from global state as it's now pane-specific
+  }, [])
 
   const handleScroll = useCallback((e, setAutoScrollState) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target
     setAutoScrollState(scrollHeight - scrollTop - clientHeight < 40)
   }, [])
-
-  // Filtered logs
-  const filteredLogs = logs.filter(entry => {
-    const tagMatch    = filterTag === 'ALL' || entry.tag === filterTag
-    const searchMatch = search === '' ||
-      entry.msg.toLowerCase().includes(search.toLowerCase()) ||
-      entry.tag.toLowerCase().includes(search.toLowerCase())
-    return tagMatch && searchMatch
-  })
-
-  // Per-tag counts
-  const tagCounts = TAG_FILTERS.reduce((acc, { tag }) => {
-    acc[tag] = tag === 'ALL' ? logs.length : logs.filter(l => l.tag === tag).length
-    return acc
-  }, {})
 
   const stats = {
     total: logs.length,
@@ -154,19 +131,8 @@ export default function LogViewer() {
     sys:   logs.filter(l => l.level === 'SYS').length,
   }
 
-  const downloadLogs = (logsToDownload, prefix) => {
-    const text = logsToDownload.map(l => `${l.ts} ${l.level.padEnd(4)} ${l.tag} ${l.msg}`).join('\n')
-    const blob = new Blob([text], { type: 'text/plain' })
-    const url  = URL.createObjectURL(blob)
-    const a    = document.createElement('a')
-    a.href     = url
-    a.download = `duranta_${prefix}_logs_${Date.now()}.txt`
-    a.click()
-    URL.revokeObjectURL(url)
-  }
-
-  const gnbLogs = filteredLogs.filter(l => l.panel === 'gNB')
-  const ueLogs  = filteredLogs.filter(l => l.panel === 'nrUE')
+  const gnbLogs = logs.filter(l => l.panel === 'gNB')
+  const ueLogs  = logs.filter(l => l.panel === 'nrUE')
 
   return (
     <div className="flex flex-col h-full p-4 gap-3 animate-fade-in">
@@ -182,50 +148,66 @@ export default function LogViewer() {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
         <LogPane
           title="gNB Base Station Logs"
-          logs={gnbLogs}
-          search={search}
-          setSearch={setSearch}
-          showIndex={showIndex}
-          setShowIndex={setShowIndex}
-          streaming={streaming}
-          setStreaming={setStreaming}
-          clearLogs={() => setLogs(prev => prev.filter(l => l.panel !== 'gNB'))}
-          downloadLogs={() => downloadLogs(gnbLogs, 'gnb')}
+          baseLogs={gnbLogs}
           handleScroll={handleScroll}
-          filterTag={filterTag}
-          setFilterTag={setFilterTag}
-          tagCounts={tagCounts}
-          totalCount={logs.filter(l => l.panel === 'gNB').length}
+          clearLogs={() => setLogs(prev => prev.filter(l => l.panel !== 'gNB'))}
         />
         <LogPane
           title="nrUE Handset Logs"
-          logs={ueLogs}
-          search={search}
-          setSearch={setSearch}
-          showIndex={showIndex}
-          setShowIndex={setShowIndex}
-          streaming={streaming}
-          setStreaming={setStreaming}
-          clearLogs={() => setLogs(prev => prev.filter(l => l.panel !== 'nrUE'))}
-          downloadLogs={() => downloadLogs(ueLogs, 'ue')}
+          baseLogs={ueLogs}
           handleScroll={handleScroll}
-          filterTag={filterTag}
-          setFilterTag={setFilterTag}
-          tagCounts={tagCounts}
-          totalCount={logs.filter(l => l.panel === 'nrUE').length}
+          clearLogs={() => setLogs(prev => prev.filter(l => l.panel !== 'nrUE'))}
         />
       </div>
     </div>
   )
 }
 
-function LogPane({
-  title, logs, search, setSearch, showIndex, setShowIndex,
-  streaming, setStreaming, clearLogs, downloadLogs, handleScroll,
-  filterTag, setFilterTag, tagCounts, totalCount
-}) {
+function LogPane({ title, baseLogs, clearLogs, handleScroll }) {
   const [autoScroll, setAutoScroll] = useState(true)
+  const [streaming, setStreaming]   = useState(true)
+  const [frozenLogs, setFrozenLogs] = useState([])
+  const [filterTag, setFilterTag]   = useState('ALL')
+  const [search, setSearch]         = useState('')
+  const [showIndex, setShowIndex]   = useState(true)
+
   const bottomRef = useRef(null)
+
+  // Freeze logs when paused
+  useEffect(() => {
+    if (!streaming) setFrozenLogs(baseLogs)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [streaming])
+
+  const activeLogs = streaming ? baseLogs : frozenLogs
+
+  // Apply filters
+  const logs = activeLogs.filter(entry => {
+    const tagMatch    = filterTag === 'ALL' || entry.tag === filterTag
+    const searchMatch = search === '' ||
+      entry.msg.toLowerCase().includes(search.toLowerCase()) ||
+      entry.tag.toLowerCase().includes(search.toLowerCase())
+    return tagMatch && searchMatch
+  })
+
+  // Per-tag counts
+  const tagCounts = TAG_FILTERS.reduce((acc, { tag }) => {
+    acc[tag] = tag === 'ALL' ? activeLogs.length : activeLogs.filter(l => l.tag === tag).length
+    return acc
+  }, {})
+
+  const totalCount = activeLogs.length
+
+  const downloadLogs = () => {
+    const text = logs.map(l => `${l.ts} ${l.level.padEnd(4)} ${l.tag} ${l.msg}`).join('\n')
+    const blob = new Blob([text], { type: 'text/plain' })
+    const url  = URL.createObjectURL(blob)
+    const a    = document.createElement('a')
+    a.href     = url
+    a.download = `duranta_${title.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   useEffect(() => {
     if (autoScroll && bottomRef.current) {
@@ -244,23 +226,23 @@ function LogPane({
     >
       {/* ── Chrome bar ───────────────────────────────── */}
       <div
-        className="flex items-center gap-2 px-4 py-2.5 shrink-0"
+        className="flex items-center gap-2 px-4 py-2.5 shrink-0 overflow-x-auto custom-scrollbar"
         style={{
           background: 'linear-gradient(90deg, rgba(16,18,28,0.98) 0%, rgba(12,14,22,0.98) 100%)',
           borderBottom: '1px solid rgba(255,255,255,0.06)',
         }}
       >
         {/* macOS dots */}
-        <div className="flex gap-1.5 shrink-0">
+        <div className="hidden sm:flex gap-1.5 shrink-0">
           <div className="w-3 h-3 rounded-full" style={{ background: '#ff5f57', boxShadow: '0 0 6px rgba(255,95,87,0.5)' }} />
           <div className="w-3 h-3 rounded-full" style={{ background: '#febc2e', boxShadow: '0 0 6px rgba(254,188,46,0.5)' }} />
           <div className="w-3 h-3 rounded-full" style={{ background: '#28c840', boxShadow: '0 0 6px rgba(40,200,64,0.5)' }} />
         </div>
 
         {/* Terminal label */}
-        <div className="flex items-center gap-2 ml-2">
+        <div className="flex items-center gap-2 sm:ml-2 shrink-0">
           <AlignJustify className="w-3.5 h-3.5 text-slate-700" />
-          <span className="text-[12px] font-mono text-slate-500 font-medium truncate max-w-[120px] sm:max-w-none">{title}</span>
+          <span className="text-[12px] font-mono text-slate-500 font-medium truncate max-w-[100px] sm:max-w-none">{title}</span>
           {streaming
             ? <span className="flex items-center gap-1 text-[10px] font-mono" style={{ color: 'var(--neon)' }}>
                 <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--neon)', boxShadow: '0 0 5px var(--neon)' }} />
@@ -275,7 +257,7 @@ function LogPane({
         <div className="flex-1" />
 
         {/* Search */}
-        <div className="relative hidden xl:flex items-center">
+        <div className="relative hidden xl:flex items-center shrink-0">
           <Search className="absolute left-2.5 w-3 h-3 text-slate-700 pointer-events-none" />
           <input
             type="text"
@@ -297,7 +279,7 @@ function LogPane({
         <button
           onClick={() => setShowIndex(v => !v)}
           title="Toggle line numbers"
-          className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] font-mono font-semibold transition-all"
+          className="hidden sm:flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] font-mono font-semibold transition-all shrink-0"
           style={showIndex
             ? { background: 'rgba(0,148,255,0.12)', border: '1px solid rgba(0,148,255,0.3)', color: '#0094ff' }
             : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569' }
@@ -310,7 +292,7 @@ function LogPane({
         <button
           onClick={() => { setAutoScroll(true); bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }}
           title="Jump to bottom"
-          className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] transition-all"
+          className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] transition-all shrink-0"
           style={autoScroll
             ? { background: 'rgba(0,232,92,0.1)', border: '1px solid rgba(0,232,92,0.3)', color: 'var(--neon)' }
             : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569' }
@@ -323,7 +305,7 @@ function LogPane({
         <button
           onClick={downloadLogs}
           title="Download visible logs"
-          className="px-2 py-1.5 rounded-lg text-[10px] transition-all"
+          className="px-2 py-1.5 rounded-lg text-[10px] transition-all shrink-0"
           style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569' }}
           onMouseEnter={e => (e.currentTarget.style.color = '#94a3b8')}
           onMouseLeave={e => (e.currentTarget.style.color = '#475569')}
@@ -335,7 +317,7 @@ function LogPane({
         <button
           onClick={clearLogs}
           title="Clear logs"
-          className="px-2 py-1.5 rounded-lg text-[10px] transition-all"
+          className="px-2 py-1.5 rounded-lg text-[10px] transition-all shrink-0"
           style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569' }}
           onMouseEnter={e => { e.currentTarget.style.color = '#ff4d6d'; e.currentTarget.style.borderColor = 'rgba(255,77,109,0.3)' }}
           onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)' }}
@@ -347,7 +329,7 @@ function LogPane({
         <button
           onClick={() => setStreaming(v => !v)}
           title={streaming ? 'Pause stream' : 'Resume stream'}
-          className="flex items-center gap-1.5 px-2 lg:px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
+          className="flex items-center gap-1.5 px-2 lg:px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all shrink-0"
           style={streaming
             ? { background: 'rgba(0,232,92,0.1)', border: '1px solid rgba(0,232,92,0.35)', color: 'var(--neon)' }
             : { background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.35)', color: '#f59e0b' }

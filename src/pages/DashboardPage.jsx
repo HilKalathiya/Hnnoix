@@ -4,7 +4,7 @@ import { Server, Radio, Smartphone, Zap, TrendingUp, Activity, Timer } from 'luc
 function FlowLink({ label, color = '#7c6aff' }) {
   return (
     <div className="flex flex-col items-center gap-2 shrink-0">
-      <div className="relative flex items-center" style={{ width: '88px' }}>
+      <div className="relative flex items-center w-12 sm:w-[88px]">
         {/* Track line with gradient */}
         <div
           className="w-full"
@@ -21,7 +21,7 @@ function FlowLink({ label, color = '#7c6aff' }) {
         />
       </div>
       <span
-        className="text-[9px] font-mono uppercase tracking-widest px-2 py-0.5 rounded-full"
+        className="hidden sm:inline-block text-[9px] font-mono uppercase tracking-widest px-2 py-0.5 rounded-full"
         style={{
           color: `${color}99`,
           background: `${color}0d`,
@@ -270,11 +270,11 @@ export default function DashboardPage() {
         </div>
 
         {/* Topology diagram */}
-        <div className="flex items-center justify-center gap-3 flex-wrap py-4 relative z-10">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-3 flex-wrap py-4 relative z-10">
           <TopologyNode {...nodes[0]} />
-          <FlowLink label="N2 / NGAP" color="#fb923c" />
+          <div className="rotate-90 sm:rotate-0 my-4 sm:my-0"><FlowLink label="N2 / NGAP" color="#fb923c" /></div>
           <TopologyNode {...nodes[1]} />
-          <FlowLink label="Uu / RF-SIM" color="#0094ff" />
+          <div className="rotate-90 sm:rotate-0 my-4 sm:my-0"><FlowLink label="Uu / RF-SIM" color="#0094ff" /></div>
           <TopologyNode {...nodes[2]} />
         </div>
 

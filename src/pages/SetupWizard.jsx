@@ -744,7 +744,7 @@ export default function SetupWizard() {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden"
+      className="fixed inset-0 flex flex-col items-center overflow-y-auto overflow-x-hidden py-8"
       style={{ background: '#07080c' }}
     >
       {/* Glow orbs */}
@@ -766,7 +766,7 @@ export default function SetupWizard() {
 
       {/* Card */}
       <div
-        className="relative w-full mx-4 rounded-2xl p-8 md:p-10 overflow-hidden noise-overlay"
+        className="relative w-full mx-4 my-auto shrink-0 rounded-2xl p-8 md:p-10 overflow-hidden noise-overlay"
         style={{
           maxWidth: 580,
           zIndex: 10,
@@ -814,7 +814,7 @@ export default function SetupWizard() {
 
       {/* Footer */}
       <p
-        className="relative mt-5 font-mono text-[11px] text-center"
+        className="relative mt-5 mb-4 shrink-0 font-mono text-[11px] text-center"
         style={{ color: 'rgba(255,255,255,0.12)', zIndex: 10 }}
       >
         Duranta 5G Network Orchestrator &nbsp;·&nbsp; System Initialization v1.0
