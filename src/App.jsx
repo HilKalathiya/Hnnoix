@@ -21,8 +21,10 @@ export default function App() {
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="logs"      element={<LogsPage />} />
         <Route path="config"    element={<ConfigPage />} />
+        {/* Hidden for demo:
         <Route path="son"       element={<SonPage />} />
         <Route path="mdt"       element={<MdtPage />} />
+        */}
         <Route path="settings"  element={<SettingsPage />} />
       </Route>
     </Routes>

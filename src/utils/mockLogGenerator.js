@@ -154,6 +154,10 @@ export function generateLogEntry() {
   if (pool.cls === 'log-mdt')    level = 'MDT'
   if (pool.cls === 'log-system') level = 'SYS'
 
+  // Derive panel from tag
+  const gnbTags = ['[AMF]', '[SMF]', '[UPF]', '[MME]', '[SYS]', '[WARN]', '[NGAP]', '[MAC]', '[PHY]', '[GTPU]']
+  const panel = gnbTags.includes(pool.tag) ? 'gNB' : 'nrUE'
+
   return {
     id:  _counter,
     ts,
@@ -161,6 +165,7 @@ export function generateLogEntry() {
     cls: pool.cls,
     msg,
     level,
+    panel,
   }
 }
 
@@ -202,6 +207,8 @@ export function generateStartupBatch() {
     _counter += 1
     const d = new Date(now.getTime() + i * 80)
     const ts = d.toTimeString().slice(0, 8) + '.' + String(d.getMilliseconds()).padStart(3, '0')
-    return { id: _counter, ts, level: 'INFO', ...entry }
+    const gnbTags = ['[AMF]', '[SMF]', '[UPF]', '[MME]', '[SYS]', '[WARN]', '[NGAP]', '[MAC]', '[PHY]', '[GTPU]']
+    const panel = gnbTags.includes(entry.tag) ? 'gNB' : 'nrUE'
+    return { id: _counter, ts, level: 'INFO', panel, ...entry }
   })
 }

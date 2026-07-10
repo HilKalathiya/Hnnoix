@@ -43,6 +43,8 @@ const primaryNav = [
 ]
 
 const moduleNav = [
+  /*
+  // Hidden for demo
   {
     to: '/son',
     label: 'SON',
@@ -61,6 +63,7 @@ const moduleNav = [
     accent: '#f59e0b',
     glow: 'rgba(251,191,36,0.25)',
   },
+  */
 ]
 
 const bottomNav = [

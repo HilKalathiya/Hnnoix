@@ -103,8 +103,6 @@ export default function LogViewer() {
   const [search,     setSearch]     = useState('')
   const [showIndex,  setShowIndex]  = useState(true)
 
-  const bottomRef    = useRef(null)
-  const containerRef = useRef(null)
   const streamRef    = useRef(null)
 
   // Boot sequence
@@ -127,17 +125,11 @@ export default function LogViewer() {
     return () => clearInterval(streamRef.current)
   }, [streaming])
 
-  // Auto-scroll
-  useEffect(() => {
-    if (autoScroll && bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: 'smooth' })
-    }
-  }, [logs, autoScroll])
+  // Auto-scroll removed from global state as it's now pane-specific
 
-  const handleScroll = useCallback(() => {
-    if (!containerRef.current) return
-    const { scrollTop, scrollHeight, clientHeight } = containerRef.current
-    setAutoScroll(scrollHeight - scrollTop - clientHeight < 40)
+  const handleScroll = useCallback((e, setAutoScrollState) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target
+    setAutoScrollState(scrollHeight - scrollTop - clientHeight < 40)
   }, [])
 
   // Filtered logs
@@ -162,20 +154,22 @@ export default function LogViewer() {
     sys:   logs.filter(l => l.level === 'SYS').length,
   }
 
-  const downloadLogs = () => {
-    const text = filteredLogs.map(l => `${l.ts} ${l.level.padEnd(4)} ${l.tag} ${l.msg}`).join('\n')
+  const downloadLogs = (logsToDownload, prefix) => {
+    const text = logsToDownload.map(l => `${l.ts} ${l.level.padEnd(4)} ${l.tag} ${l.msg}`).join('\n')
     const blob = new Blob([text], { type: 'text/plain' })
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement('a')
     a.href     = url
-    a.download = `duranta_logs_${Date.now()}.txt`
+    a.download = `duranta_${prefix}_logs_${Date.now()}.txt`
     a.click()
     URL.revokeObjectURL(url)
   }
 
+  const gnbLogs = filteredLogs.filter(l => l.panel === 'gNB')
+  const ueLogs  = filteredLogs.filter(l => l.panel === 'nrUE')
+
   return (
     <div className="flex flex-col h-full p-4 gap-3 animate-fade-in">
-
       {/* ── Stats strip ──────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 shrink-0">
         <StatCard label="Total Lines" value={stats.total} accent="#7c6aff" icon={AlignJustify} />
@@ -184,207 +178,259 @@ export default function LogViewer() {
         <StatCard label="System"      value={stats.sys}   accent="#0094ff" icon={AlignJustify} />
       </div>
 
-      {/* ── Terminal window ───────────────────────────── */}
+      {/* ── Dual Pane Terminal Windows ───────────────────────────── */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
+        <LogPane
+          title="gNB Base Station Logs"
+          logs={gnbLogs}
+          search={search}
+          setSearch={setSearch}
+          showIndex={showIndex}
+          setShowIndex={setShowIndex}
+          streaming={streaming}
+          setStreaming={setStreaming}
+          clearLogs={() => setLogs(prev => prev.filter(l => l.panel !== 'gNB'))}
+          downloadLogs={() => downloadLogs(gnbLogs, 'gnb')}
+          handleScroll={handleScroll}
+          filterTag={filterTag}
+          setFilterTag={setFilterTag}
+          tagCounts={tagCounts}
+          totalCount={logs.filter(l => l.panel === 'gNB').length}
+        />
+        <LogPane
+          title="nrUE Handset Logs"
+          logs={ueLogs}
+          search={search}
+          setSearch={setSearch}
+          showIndex={showIndex}
+          setShowIndex={setShowIndex}
+          streaming={streaming}
+          setStreaming={setStreaming}
+          clearLogs={() => setLogs(prev => prev.filter(l => l.panel !== 'nrUE'))}
+          downloadLogs={() => downloadLogs(ueLogs, 'ue')}
+          handleScroll={handleScroll}
+          filterTag={filterTag}
+          setFilterTag={setFilterTag}
+          tagCounts={tagCounts}
+          totalCount={logs.filter(l => l.panel === 'nrUE').length}
+        />
+      </div>
+    </div>
+  )
+}
+
+function LogPane({
+  title, logs, search, setSearch, showIndex, setShowIndex,
+  streaming, setStreaming, clearLogs, downloadLogs, handleScroll,
+  filterTag, setFilterTag, tagCounts, totalCount
+}) {
+  const [autoScroll, setAutoScroll] = useState(true)
+  const bottomRef = useRef(null)
+
+  useEffect(() => {
+    if (autoScroll && bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [logs, autoScroll])
+
+  return (
+    <div
+      className="flex-1 flex flex-col rounded-2xl overflow-hidden min-h-0"
+      style={{
+        background: 'rgba(8,9,14,0.95)',
+        border: '1px solid rgba(255,255,255,0.07)',
+        boxShadow: '0 4px 40px rgba(0,0,0,0.5)',
+      }}
+    >
+      {/* ── Chrome bar ───────────────────────────────── */}
       <div
-        className="flex-1 flex flex-col rounded-2xl overflow-hidden min-h-0"
+        className="flex items-center gap-2 px-4 py-2.5 shrink-0"
         style={{
-          background: 'rgba(8,9,14,0.95)',
-          border: '1px solid rgba(255,255,255,0.07)',
-          boxShadow: '0 4px 40px rgba(0,0,0,0.5)',
+          background: 'linear-gradient(90deg, rgba(16,18,28,0.98) 0%, rgba(12,14,22,0.98) 100%)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
         }}
       >
-
-        {/* ── Chrome bar ───────────────────────────────── */}
-        <div
-          className="flex items-center gap-2 px-4 py-2.5 shrink-0"
-          style={{
-            background: 'linear-gradient(90deg, rgba(16,18,28,0.98) 0%, rgba(12,14,22,0.98) 100%)',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-          }}
-        >
-          {/* macOS dots */}
-          <div className="flex gap-1.5 shrink-0">
-            <div className="w-3 h-3 rounded-full" style={{ background: '#ff5f57', boxShadow: '0 0 6px rgba(255,95,87,0.5)' }} />
-            <div className="w-3 h-3 rounded-full" style={{ background: '#febc2e', boxShadow: '0 0 6px rgba(254,188,46,0.5)' }} />
-            <div className="w-3 h-3 rounded-full" style={{ background: '#28c840', boxShadow: '0 0 6px rgba(40,200,64,0.5)' }} />
-          </div>
-
-          {/* Terminal label */}
-          <div className="flex items-center gap-2 ml-2">
-            <AlignJustify className="w-3.5 h-3.5 text-slate-700" />
-            <span className="text-[12px] font-mono text-slate-500 font-medium">duranta-console</span>
-            {streaming
-              ? <span className="flex items-center gap-1 text-[10px] font-mono" style={{ color: 'var(--neon)' }}>
-                  <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--neon)', boxShadow: '0 0 5px var(--neon)' }} />
-                  LIVE
-                </span>
-              : <span className="flex items-center gap-1 text-[10px] font-mono text-amber-500">
-                  ⏸ PAUSED
-                </span>
-            }
-          </div>
-
-          <div className="flex-1" />
-
-          {/* Search */}
-          <div className="relative hidden sm:flex items-center">
-            <Search className="absolute left-2.5 w-3 h-3 text-slate-700 pointer-events-none" />
-            <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Search logs…"
-              className="pl-7 pr-3 py-1.5 rounded-lg text-[11px] font-mono text-slate-400
-                         placeholder-slate-700 focus:outline-none w-44 transition-all"
-              style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.08)',
-              }}
-              onFocus={e => (e.target.style.borderColor = 'rgba(124,106,255,0.4)')}
-              onBlur={e  => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
-            />
-          </div>
-
-          {/* Line numbers toggle */}
-          <button
-            onClick={() => setShowIndex(v => !v)}
-            title="Toggle line numbers"
-            className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] font-mono font-semibold transition-all"
-            style={showIndex
-              ? { background: 'rgba(0,148,255,0.12)', border: '1px solid rgba(0,148,255,0.3)', color: '#0094ff' }
-              : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569' }
-            }
-          >
-            <Hash className="w-3 h-3" />
-          </button>
-
-          {/* Jump to bottom */}
-          <button
-            onClick={() => { setAutoScroll(true); bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }}
-            title="Jump to bottom"
-            className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] transition-all"
-            style={autoScroll
-              ? { background: 'rgba(0,232,92,0.1)', border: '1px solid rgba(0,232,92,0.3)', color: 'var(--neon)' }
-              : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569' }
-            }
-          >
-            <ChevronDown className="w-3.5 h-3.5" />
-          </button>
-
-          {/* Download */}
-          <button
-            onClick={downloadLogs}
-            title="Download visible logs"
-            className="px-2 py-1.5 rounded-lg text-[10px] transition-all"
-            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#94a3b8')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#475569')}
-          >
-            <Download className="w-3.5 h-3.5" />
-          </button>
-
-          {/* Clear */}
-          <button
-            onClick={() => setLogs([])}
-            title="Clear logs"
-            className="px-2 py-1.5 rounded-lg text-[10px] transition-all"
-            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569' }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#ff4d6d'; e.currentTarget.style.borderColor = 'rgba(255,77,109,0.3)' }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)' }}
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
-
-          {/* Pause / Resume */}
-          <button
-            onClick={() => setStreaming(v => !v)}
-            title={streaming ? 'Pause stream' : 'Resume stream'}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
-            style={streaming
-              ? { background: 'rgba(0,232,92,0.1)', border: '1px solid rgba(0,232,92,0.35)', color: 'var(--neon)' }
-              : { background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.35)', color: '#f59e0b' }
-            }
-          >
-            {streaming
-              ? <><Pause className="w-3 h-3" /> Pause</>
-              : <><Play  className="w-3 h-3" /> Resume</>
-            }
-          </button>
+        {/* macOS dots */}
+        <div className="flex gap-1.5 shrink-0">
+          <div className="w-3 h-3 rounded-full" style={{ background: '#ff5f57', boxShadow: '0 0 6px rgba(255,95,87,0.5)' }} />
+          <div className="w-3 h-3 rounded-full" style={{ background: '#febc2e', boxShadow: '0 0 6px rgba(254,188,46,0.5)' }} />
+          <div className="w-3 h-3 rounded-full" style={{ background: '#28c840', boxShadow: '0 0 6px rgba(40,200,64,0.5)' }} />
         </div>
 
-        {/* ── Tag filter bar ────────────────────────────── */}
-        <div
-          className="flex items-center gap-1.5 px-4 py-2 overflow-x-auto shrink-0"
-          style={{
-            background: 'rgba(10,11,18,0.9)',
-            borderBottom: '1px solid rgba(255,255,255,0.05)',
-          }}
-        >
-          <Filter className="w-3 h-3 text-slate-700 shrink-0 mr-0.5" />
+        {/* Terminal label */}
+        <div className="flex items-center gap-2 ml-2">
+          <AlignJustify className="w-3.5 h-3.5 text-slate-700" />
+          <span className="text-[12px] font-mono text-slate-500 font-medium truncate max-w-[120px] sm:max-w-none">{title}</span>
+          {streaming
+            ? <span className="flex items-center gap-1 text-[10px] font-mono" style={{ color: 'var(--neon)' }}>
+                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--neon)', boxShadow: '0 0 5px var(--neon)' }} />
+                LIVE
+              </span>
+            : <span className="flex items-center gap-1 text-[10px] font-mono text-amber-500">
+                ⏸ PAUSED
+              </span>
+          }
+        </div>
 
-          {TAG_FILTERS.map(({ tag, color }) => {
-            const isActive = filterTag === tag
-            const count = tagCounts[tag] ?? 0
-            return (
-              <button
-                key={tag}
-                onClick={() => setFilterTag(tag)}
-                className={`filter-pill ${isActive ? 'filter-pill-active' : ''}`}
-                style={isActive ? { borderColor: `${color}55`, background: `${color}12`, color } : {}}
-              >
+        <div className="flex-1" />
+
+        {/* Search */}
+        <div className="relative hidden xl:flex items-center">
+          <Search className="absolute left-2.5 w-3 h-3 text-slate-700 pointer-events-none" />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search logs…"
+            className="pl-7 pr-3 py-1.5 rounded-lg text-[11px] font-mono text-slate-400
+                       placeholder-slate-700 focus:outline-none w-32 transition-all"
+            style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
+            }}
+            onFocus={e => (e.target.style.borderColor = 'rgba(124,106,255,0.4)')}
+            onBlur={e  => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+          />
+        </div>
+
+        {/* Line numbers toggle */}
+        <button
+          onClick={() => setShowIndex(v => !v)}
+          title="Toggle line numbers"
+          className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] font-mono font-semibold transition-all"
+          style={showIndex
+            ? { background: 'rgba(0,148,255,0.12)', border: '1px solid rgba(0,148,255,0.3)', color: '#0094ff' }
+            : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569' }
+          }
+        >
+          <Hash className="w-3 h-3" />
+        </button>
+
+        {/* Jump to bottom */}
+        <button
+          onClick={() => { setAutoScroll(true); bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }}
+          title="Jump to bottom"
+          className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-[10px] transition-all"
+          style={autoScroll
+            ? { background: 'rgba(0,232,92,0.1)', border: '1px solid rgba(0,232,92,0.3)', color: 'var(--neon)' }
+            : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569' }
+          }
+        >
+          <ChevronDown className="w-3.5 h-3.5" />
+        </button>
+
+        {/* Download */}
+        <button
+          onClick={downloadLogs}
+          title="Download visible logs"
+          className="px-2 py-1.5 rounded-lg text-[10px] transition-all"
+          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569' }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#94a3b8')}
+          onMouseLeave={e => (e.currentTarget.style.color = '#475569')}
+        >
+          <Download className="w-3.5 h-3.5" />
+        </button>
+
+        {/* Clear */}
+        <button
+          onClick={clearLogs}
+          title="Clear logs"
+          className="px-2 py-1.5 rounded-lg text-[10px] transition-all"
+          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#475569' }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#ff4d6d'; e.currentTarget.style.borderColor = 'rgba(255,77,109,0.3)' }}
+          onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)' }}
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+
+        {/* Pause / Resume */}
+        <button
+          onClick={() => setStreaming(v => !v)}
+          title={streaming ? 'Pause stream' : 'Resume stream'}
+          className="flex items-center gap-1.5 px-2 lg:px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all"
+          style={streaming
+            ? { background: 'rgba(0,232,92,0.1)', border: '1px solid rgba(0,232,92,0.35)', color: 'var(--neon)' }
+            : { background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.35)', color: '#f59e0b' }
+          }
+        >
+          {streaming
+            ? <><Pause className="w-3 h-3" /> <span className="hidden sm:inline">Pause</span></>
+            : <><Play  className="w-3 h-3" /> <span className="hidden sm:inline">Resume</span></>
+          }
+        </button>
+      </div>
+
+      {/* ── Tag filter bar ────────────────────────────── */}
+      <div
+        className="flex items-center gap-1.5 px-4 py-2 overflow-x-auto shrink-0 custom-scrollbar"
+        style={{
+          background: 'rgba(10,11,18,0.9)',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+        }}
+      >
+        <Filter className="w-3 h-3 text-slate-700 shrink-0 mr-0.5" />
+
+        {TAG_FILTERS.map(({ tag, color }) => {
+          const isActive = filterTag === tag
+          const count = tagCounts[tag] ?? 0
+          return (
+            <button
+              key={tag}
+              onClick={() => setFilterTag(tag)}
+              className={`filter-pill ${isActive ? 'filter-pill-active' : ''}`}
+              style={isActive ? { borderColor: `${color}55`, background: `${color}12`, color } : {}}
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full shrink-0"
+                style={{ background: isActive ? color : '#334155' }}
+              />
+              {tag.replace(/\[|\]/g, '')}
+              {count > 0 && (
                 <span
-                  className="w-1.5 h-1.5 rounded-full shrink-0"
-                  style={{ background: isActive ? color : '#334155' }}
-                />
-                {tag.replace(/\[|\]/g, '')}
-                {count > 0 && (
-                  <span
-                    className="ml-0.5 px-1 py-px rounded text-[8px] font-bold tabular-nums"
-                    style={isActive
-                      ? { background: `${color}22`, color }
-                      : { background: 'rgba(255,255,255,0.06)', color: '#475569' }
-                    }
-                  >
-                    {count}
-                  </span>
-                )}
-              </button>
-            )
-          })}
+                  className="ml-0.5 px-1 py-px rounded text-[8px] font-bold tabular-nums"
+                  style={isActive
+                    ? { background: `${color}22`, color }
+                    : { background: 'rgba(255,255,255,0.06)', color: '#475569' }
+                  }
+                >
+                  {count}
+                </span>
+              )}
+            </button>
+          )
+        })}
 
-          <div className="ml-auto text-[10px] font-mono text-slate-700 shrink-0 tabular-nums">
-            {filteredLogs.length}/{logs.length}
-          </div>
+        <div className="ml-auto text-[10px] font-mono text-slate-700 shrink-0 tabular-nums">
+          {logs.length}/{totalCount}
         </div>
+      </div>
 
-        {/* ── Log output area ────────────────────────────── */}
-        <div
-          ref={containerRef}
-          onScroll={handleScroll}
-          className="terminal-scroll flex-1 overflow-y-auto overflow-x-auto relative scanlines"
-          style={{ background: '#060709' }}
-        >
-          <div className="py-1 min-w-max w-full">
-            {filteredLogs.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-40 gap-2">
-                <span className="text-3xl opacity-30">📡</span>
-                <span className="text-slate-700 font-mono text-xs">No logs match the current filter.</span>
-              </div>
-            ) : (
-              filteredLogs.map(entry => (
-                <LogLine key={entry.id} entry={entry} showIndex={showIndex} />
-              ))
-            )}
-
-            {/* Cursor line */}
-            <div className="px-4 py-1 font-mono text-xs" style={{ color: 'rgba(0,232,92,0.4)' }}>
-              {streaming
-                ? <span className="terminal-cursor" />
-                : <span className="text-amber-600">⏸ Stream paused — click Resume to continue</span>
-              }
+      {/* ── Log output area ────────────────────────────── */}
+      <div
+        onScroll={e => handleScroll(e, setAutoScroll)}
+        className="terminal-scroll flex-1 overflow-y-auto overflow-x-auto relative scanlines"
+        style={{ background: '#060709' }}
+      >
+        <div className="py-1 min-w-max w-full">
+          {logs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-40 gap-2">
+              <span className="text-3xl opacity-30">📡</span>
+              <span className="text-slate-700 font-mono text-xs">No logs match the current filter.</span>
             </div>
-            <div ref={bottomRef} />
+          ) : (
+            logs.map(entry => (
+              <LogLine key={entry.id} entry={entry} showIndex={showIndex} />
+            ))
+          )}
+
+          {/* Cursor line */}
+          <div className="px-4 py-1 font-mono text-xs" style={{ color: 'rgba(0,232,92,0.4)' }}>
+            {streaming
+              ? <span className="terminal-cursor" />
+              : <span className="text-amber-600">⏸ Stream paused — click Resume to continue</span>
+            }
           </div>
+          <div ref={bottomRef} />
         </div>
       </div>
     </div>
