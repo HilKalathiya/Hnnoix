@@ -1,0 +1,1 @@
+\n$ "C:\\Program Files\\Git\\cmd\\git.exe" add .\n
