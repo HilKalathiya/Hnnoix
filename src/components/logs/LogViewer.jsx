@@ -204,7 +204,7 @@ function LogPane({ title, baseLogs, clearLogs, handleScroll }) {
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement('a')
     a.href     = url
-    a.download = `duranta_${title.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}.txt`
+    a.download = `hnnoix_${title.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}.txt`
     a.click()
     URL.revokeObjectURL(url)
   }

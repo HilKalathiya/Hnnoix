@@ -178,7 +178,7 @@ export default function MdtPage() {
           <p className="text-[12px] text-signal-400 font-bold mb-0.5">Live Mode Behavior</p>
           <p className="text-[12px] text-slate-400 leading-relaxed">
             In live mode, this page renders the 64-entry MDT ring buffer updated in real-time via WebSocket,
-            with RSRP drop event markers and reason codes (<code className="font-mono text-slate-300 text-[11px]">periodic</code> / <code className="font-mono text-slate-300 text-[11px]">low_rsrp</code>) from the Duranta nrUE MDT module.
+            with RSRP drop event markers and reason codes (<code className="font-mono text-slate-300 text-[11px]">periodic</code> / <code className="font-mono text-slate-300 text-[11px]">low_rsrp</code>) from the Hnnoix nrUE MDT module.
           </p>
         </div>
       </div>

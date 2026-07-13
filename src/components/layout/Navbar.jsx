@@ -41,7 +41,7 @@ function LiveClock() {
 
 export default function Navbar({ onMenuToggle }) {
   const { pathname } = useLocation()
-  const page = PAGE_TITLES[pathname] ?? { title: 'Duranta GUI', subtitle: '' }
+  const page = PAGE_TITLES[pathname] ?? { title: 'Hnnoix GUI', subtitle: '' }
   const [notifCount] = useState(2)
 
   return (

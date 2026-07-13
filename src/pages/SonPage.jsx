@@ -137,7 +137,7 @@ export default function SonPage() {
         </h2>
         <p className="text-[14px] text-slate-400 leading-relaxed font-medium">
           Automatic optimization of coverage, capacity, and handover parameters using
-          real-time telemetry from the Duranta gNB and nrUE. <em className="text-slate-200 not-italic font-semibold">Coming in a future sprint.</em>
+          real-time telemetry from the Hnnoix gNB and nrUE. <em className="text-slate-200 not-italic font-semibold">Coming in a future sprint.</em>
         </p>
       </div>
 

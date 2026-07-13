@@ -10,13 +10,13 @@ const MOCK_CONFIGS = {
   dnn= "default";
   nssai_sst=1;
 };`,
-  gnb: `Active_gNBs = ( "gNB-OAI");
+  gnb: `Active_gNBs = ( "gNB-HNX");
 Asn1_verbosity = "none";
 
 gNBs = (
   {
     gNB_ID    =  0xe00;
-    gNB_name  =  "gNB-OAI";
+    gNB_name  =  "gNB-HNX";
     tracking_area_code  =  1;
     plmn_list = (
       { mcc = 001; mnc = 01; mnc_length = 2; snssaiList = ({ sst = 1; }) }
@@ -29,9 +29,9 @@ gNBs = (
   sbi:
     server:
       no_tls: true
-      cacert: /etc/open5gs/tls/ca.crt
-      key: /etc/open5gs/tls/amf.key
-      cert: /etc/open5gs/tls/amf.crt
+      cacert: /etc/hnnoixcore/tls/ca.crt
+      key: /etc/hnnoixcore/tls/amf.key
+      cert: /etc/hnnoixcore/tls/amf.crt
   ngap:
     server:
       - address: 127.0.0.5

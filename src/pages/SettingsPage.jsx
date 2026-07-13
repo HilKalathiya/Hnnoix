@@ -176,7 +176,7 @@ export default function SettingsPage() {
           <InfoRow label="Framework"        value="React 18 + Vite 5"     />
           <InfoRow label="Styling"          value="Tailwind CSS v3"        />
           <InfoRow label="Backend Target"   value="FastAPI / Express"      />
-          <InfoRow label="5G Stack"         value="Duranta gNB + Open5GS"  />
+          <InfoRow label="5G Stack"         value="Hnnoix gNB + Hnnoix Core"  />
           <InfoRow label="Mode"             value="MOCK (no backend)"      valueColor="#f59e0b" />
         </div>
 

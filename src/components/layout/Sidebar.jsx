@@ -234,10 +234,10 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
                 className="text-[15px] font-extrabold leading-tight brand-gradient tracking-tight"
                 style={{ fontFamily: "'Syne', sans-serif", letterSpacing: '-0.02em' }}
               >
-                Duranta
+                Hnnoix
               </div>
               <div className="text-[10.5px] text-slate-500 leading-tight font-mono tracking-wide font-semibold">
-                Open5GS GUI
+                Hnnoix Core GUI
               </div>
             </div>
           )}

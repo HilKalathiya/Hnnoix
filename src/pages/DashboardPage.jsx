@@ -172,7 +172,7 @@ export default function DashboardPage() {
   const nodes = [
     {
       icon: Server,
-      label: 'Open5GS Core',
+      label: 'Hnnoix Core Core',
       subtitle: '127.0.0.5:38412',
       status: 'offline',
       accentColor: '#fb923c',
@@ -180,7 +180,7 @@ export default function DashboardPage() {
     },
     {
       icon: Radio,
-      label: 'Duranta gNB',
+      label: 'Hnnoix gNB',
       subtitle: 'NR-ARFCN 641272',
       status: 'offline',
       accentColor: '#0094ff',

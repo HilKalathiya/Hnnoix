@@ -3,7 +3,7 @@
  * ─────────────────────────────────────────────────────────
  * Realistic 5G telecom mock log data generator.
  * Produces structured log entries that mimic authentic output
- * from Duranta gNB, nrUE, and Open5GS core processes.
+ * from Hnnoix gNB, nrUE, and Hnnoix Core core processes.
  */
 
 let _counter = 0
@@ -94,9 +94,9 @@ const PROCESS_POOLS = {
       '4-step RACH: MSG4 contention resolved ✓',
     ]},
     { tag: '[TUN]',     cls: 'log-tun',  messages: [
-      'TUN Interface oaitun_ue1 successfully configured, IPv4 10.45.0.3',
-      'Routing: default route via oaitun_ue1 set',
-      'Ping 8.8.8.8 via oaitun_ue1 — RTT 18ms',
+      'TUN Interface hnxtun_ue1 successfully configured, IPv4 10.45.0.3',
+      'Routing: default route via hnxtun_ue1 set',
+      'Ping 8.8.8.8 via hnxtun_ue1 — RTT 18ms',
     ]},
     { tag: '[MDT]',     cls: 'log-mdt',  messages: [
       'Stored report #1: serving_RSRP=-95 dBm, reason=periodic',
@@ -112,11 +112,11 @@ const PROCESS_POOLS = {
 
   SYSTEM: [
     { tag: '[SYS]',  cls: 'log-system', messages: [
-      'Backend process spawned: open5gs-amfd (PID 14231)',
+      'Backend process spawned: hnnoixcore-amfd (PID 14231)',
       'Backend process spawned: nr-softmodem (PID 14509)',
       'Backend process spawned: nr-uesoftmodem (PID 14621)',
-      'Systemd service open5gs-amfd.service → active (running)',
-      'Config injected: /etc/open5gs/amf.yaml patched ✓',
+      'Systemd service hnnoixcore-amfd.service → active (running)',
+      'Config injected: /etc/hnnoixcore/amf.yaml patched ✓',
       'Config injected: gnb.conf PLMN=001-01, BW=106PRBs',
       'Graceful teardown initiated — sending SIGTERM',
       'Process 14509 (nr-softmodem) terminated ✓',
@@ -175,11 +175,11 @@ export function generateLogEntry() {
 export function generateStartupBatch() {
   const bootSequence = [
     { tag: '[SYS]',     cls: 'log-system', msg: '══════════════════════════════════════════════════' },
-    { tag: '[SYS]',     cls: 'log-system', msg: '  Duranta + Open5GS GUI — Mock Stream Initialised' },
+    { tag: '[SYS]',     cls: 'log-system', msg: '  Hnnoix + Hnnoix Core GUI — Mock Stream Initialised' },
     { tag: '[SYS]',     cls: 'log-system', msg: '══════════════════════════════════════════════════' },
     { tag: '[SYS]',     cls: 'log-system', msg: 'Phase 1: Verify environment — no zombie processes found' },
     { tag: '[SYS]',     cls: 'log-system', msg: 'Phase 2: Parameter injection — PLMN 001-01 written to AMF config' },
-    { tag: '[SYS]',     cls: 'log-system', msg: 'Phase 3: Core Ignition — restarting Open5GS daemons' },
+    { tag: '[SYS]',     cls: 'log-system', msg: 'Phase 3: Core Ignition — restarting Hnnoix Core daemons' },
     { tag: '[AMF]',     cls: 'log-core',   msg: 'AMF started, listening on 127.0.0.5:38412' },
     { tag: '[SMF]',     cls: 'log-core',   msg: 'SMF ready — PFCP socket bound to 127.0.0.4:8805' },
     { tag: '[UPF]',     cls: 'log-core',   msg: 'UPF started — N3 interface: 127.0.0.7' },
@@ -197,7 +197,7 @@ export function generateStartupBatch() {
     { tag: '[NAS]',     cls: 'log-nas',   msg: 'Registration Accept received — 5G-GUTI assigned' },
     { tag: '[NAS]',     cls: 'log-nas',   msg: 'PDU Session Establishment Request sent' },
     { tag: '[GTPU]',    cls: 'log-gtpu',  msg: 'Created gtpu instance id: 80' },
-    { tag: '[TUN]',     cls: 'log-tun',   msg: 'TUN Interface oaitun_ue1 successfully configured, IPv4 10.45.0.3' },
+    { tag: '[TUN]',     cls: 'log-tun',   msg: 'TUN Interface hnxtun_ue1 successfully configured, IPv4 10.45.0.3' },
     { tag: '[SYS]',     cls: 'log-system', msg: 'Phase 6: Live Telemetry — WebSocket stream active' },
     { tag: '[MDT]',     cls: 'log-mdt',   msg: 'Stored report #1: serving_RSRP=-95 dBm, reason=periodic' },
   ]

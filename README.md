@@ -1,10 +1,10 @@
-# Duranta Open5GS GUI 📡
+# Hnnoix Hnnoix Core GUI 📡
 
 <p align="center">
-  <img src="./public/screenshots/dashboard-overview.png" alt="Duranta Open5GS GUI Dashboard" width="100%" />
+  <img src="./public/screenshots/dashboard-overview.png" alt="Hnnoix Hnnoix Core GUI Dashboard" width="100%" />
 </p>
 
-Welcome to the **Duranta Open5GS GUI** — a world-class, next-generation control panel designed as the visual frontend for the **Duranta OpenAirInterface5G (OAI)** codebase and the **Open5GS** 5G core network.
+Welcome to the **Hnnoix Hnnoix Core GUI** — a world-class, next-generation control panel designed as the visual frontend for the **Hnnoix Hnnoix 5G (HNX)** codebase and the **Hnnoix Core** 5G core network.
 
 Instead of dealing with complex Linux terminal commands and manually editing `.conf` files, this UI provides a sleek, dark-mode interface to manage, monitor, and configure a complete simulated 5G network (Core, Base Station, and User Equipment) right from your browser.
 
@@ -14,8 +14,8 @@ Instead of dealing with complex Linux terminal commands and manually editing `.c
 
 To run a private 5G network locally without expensive hardware, we use software simulators. A 5G network consists of three main pieces:
 
-1. **The Core Network (AMF, UPF, etc.)** — We use **Open5GS** for this. It acts as the brain, handling internet routing and subscriber authentication.
-2. **The Base Station / Tower (gNB)** — We use the `nr-softmodem` binary from the Duranta OAI codebase to simulate the cell tower broadcasting radio waves.
+1. **The Core Network (AMF, UPF, etc.)** — We use **Hnnoix Core** for this. It acts as the brain, handling internet routing and subscriber authentication.
+2. **The Base Station / Tower (gNB)** — We use the `nr-softmodem` binary from the Hnnoix HNX codebase to simulate the cell tower broadcasting radio waves.
 3. **The Mobile Phone (UE)** — We use the `nr-uesoftmodem` binary to simulate a 5G smartphone connecting to our tower.
 
 This frontend acts as the **"Conductor"** for all three pieces — configure how they talk to each other, start/stop services, and visually monitor complex 3GPP protocol messages (RRC, NGAP, NAS) flowing between them in real-time.
@@ -37,7 +37,7 @@ When you first launch the application (or navigate to `/welcome`), you are greet
 </p>
 
 **What you see:**
-- The **Duranta + Open5GS** branded title with a custom 5G signal tower logo
+- The **Hnnoix + Hnnoix Core** branded title with a custom 5G signal tower logo
 - An animated particle network background showing the connectivity theme
 - A live terminal preview showing the dependency check commands that will run on your Linux machine
 - The **"Begin System Setup"** button to start the automation
@@ -63,9 +63,9 @@ This screen is purely informational. It confirms the wizard is initializing and 
 **What it does:**
 This step calls the backend endpoint `POST /api/setup`. The backend executes:
 ```bash
-git clone https://github.com/duranta-project/openairinterface5g
+git clone https://github.com/HilKalathiya/Hnnoix
 ```
-It clones the Duranta fork of the OpenAirInterface5G repository to your Linux machine's disk. This is required before the build step can run.
+It clones the Hnnoix fork of the Hnnoix 5G repository to your Linux machine's disk. This is required before the build step can run.
 
 **Expected duration:** 1–3 minutes depending on your internet speed.
 
@@ -144,7 +144,7 @@ Your backend (FastAPI, Express, etc.) must expose these two endpoints:
 
 | Method | Endpoint      | Description                                | Success Response              |
 |--------|---------------|--------------------------------------------|-------------------------------|
-| `GET`  | `/api/setup`  | Clones the OAI repository                  | `{ "success": true }`         |
+| `GET`  | `/api/setup`  | Clones the HNX repository                  | `{ "success": true }`         |
 | `GET`  | `/api/build`  | Runs `cmake` + `make` to compile binaries  | `{ "success": true }`         |
 
 On failure, both endpoints should return:
@@ -177,7 +177,7 @@ app.add_middleware(
 ![Dashboard View](./public/screenshots/dashboard-overview.png)
 
 **What this UI part does:**
-- **Live Topology Map**: This animated graph represents the connection state between your Open5GS AMF (Core), Duranta gNB (Tower), and Duranta UE (Phone). When nodes glow, connections are established.
+- **Live Topology Map**: This animated graph represents the connection state between your Hnnoix Core AMF (Core), Hnnoix gNB (Tower), and Hnnoix UE (Phone). When nodes glow, connections are established.
 - **Network Status Panel (Sidebar)**: Quick indicators showing if Core (`127.0.0.5`), gNB (`NR-ARFCN`), and UE (`IMSI:001`) processes are running.
 - **KPI Cards**: Display real-time network metrics — signal quality (RSRP), throughput, and latency.
 
@@ -210,7 +210,7 @@ This page replaces manual `vim` editing of complex `.conf` files.
 ### 4. MDT Module (Minimization of Drive Tests)
 
 **What this UI part does:**
-Visualizes our custom MDT feature added to OAI RRC C-code:
+Visualizes our custom MDT feature added to HNX RRC C-code:
 - The UE constantly measures signal strength (RSRP)
 - If signal drops below a threshold, it's saved in a 64-slot ring buffer
 - The UE packages samples into an ASN.1 `MeasurementReport` and sends it to the Tower
@@ -303,4 +303,4 @@ To complete the README documentation, take screenshots of each wizard step and s
 | **Icons** | Lucide React |
 | **Routing** | React Router v6 |
 | **Backend Protocol** | REST JSON API (FastAPI / Express) |
-| **5G Stack** | Duranta gNB (OAI fork) + Open5GS Core |
+| **5G Stack** | Hnnoix gNB (HNX fork) + Hnnoix Core Core |

@@ -313,7 +313,7 @@ function WelcomeStep({ onBegin }) {
     { text: 'system --check-dependencies',  color: '#94a3b8', delay: 200  },
     { text: 'docker --version 24.0.6',       color: '#3db0ff', delay: 700  },
     { text: 'cmake --version 3.26.4',        color: '#3db0ff', delay: 1100 },
-    { text: 'Initializing Duranta setup…',   color: '#00e85c', delay: 1600 },
+    { text: 'Initializing Hnnoix setup…',   color: '#00e85c', delay: 1600 },
   ]
 
   return (
@@ -354,8 +354,8 @@ function WelcomeStep({ onBegin }) {
         className="text-[32px] font-extrabold mb-1.5 leading-tight"
         style={{ fontFamily: "'Syne', sans-serif", letterSpacing: '-0.035em' }}
       >
-        <span className="brand-gradient">Duranta</span>
-        <span style={{ color: '#dce4ff' }}> + Open5GS</span>
+        <span className="brand-gradient">Hnnoix</span>
+        <span style={{ color: '#dce4ff' }}> + Hnnoix Core</span>
       </h1>
       <p
         className="text-[15px] font-bold mb-1"
@@ -374,13 +374,13 @@ function WelcomeStep({ onBegin }) {
         className="text-[14px] leading-relaxed max-w-sm mt-3 mb-7 font-medium"
         style={{ color: '#94a3c8', lineHeight: 1.75 }}
       >
-        This wizard clones the OpenAirInterface repository and compiles the required RAN binaries before launching the dashboard.
+        This wizard clones the Hnnoix repository and compiles the required RAN binaries before launching the dashboard.
         Requires internet access and may take several minutes.
       </p>
 
       {/* Terminal preview */}
       <div className="w-full max-w-sm mb-8">
-        <TerminalWindow title="duranta — bash">
+        <TerminalWindow title="hnnoix — bash">
           {lines.map((l, i) => <TermLine key={i} {...l} />)}
           <div className="font-mono text-xs text-neon-400 terminal-cursor mt-1">&nbsp;</div>
         </TerminalWindow>
@@ -443,7 +443,7 @@ function CloneStep({ onProceed }) {
   useEffect(() => { runClone() }, [])
 
   const logLines = [
-    { text: `git clone https://github.com/duranta-project/openairinterface5g`, color: '#3db0ff', delay: 0   },
+    { text: `git clone https://github.com/HilKalathiya/Hnnoix`, color: '#3db0ff', delay: 0   },
     { text: 'Resolving deltas: 100% (18432/18432)', color: '#94a3b8', delay: 500 },
     { text: 'Receiving objects: 100% (124563/124563)', color: '#94a3b8', delay: 1000 },
     { text: 'Checking connectivity…', color: '#94a3b8', delay: 1600 },
@@ -458,7 +458,7 @@ function CloneStep({ onProceed }) {
         {status === 'loading' && (
           <div className="flex flex-col items-center">
             <Spinner color="#0094ff" />
-            <p className="mt-4 font-semibold text-slate-200 text-base">Cloning OpenAirInterface Repository…</p>
+            <p className="mt-4 font-semibold text-slate-200 text-base">Cloning Hnnoix Repository…</p>
             <p className="text-slate-500 text-sm mt-1">Fetching from GitHub. Please wait.</p>
           </div>
         )}
@@ -473,7 +473,7 @@ function CloneStep({ onProceed }) {
               </svg>
             </div>
             <p className="font-bold text-neon-400 text-lg">Repository Cloned Successfully</p>
-            <p className="text-slate-500 text-sm mt-1">openairinterface5g is ready on disk.</p>
+            <p className="text-slate-500 text-sm mt-1">hnnoix is ready on disk.</p>
           </div>
         )}
         {status === 'error' && (
@@ -494,7 +494,7 @@ function CloneStep({ onProceed }) {
 
       {/* Terminal log */}
       <div className="w-full max-w-md mb-8">
-        <TerminalWindow title="duranta — git">
+        <TerminalWindow title="hnnoix — git">
           {logLines.map((l, i) => <TermLine key={i} {...l} />)}
           {status === 'success' && <TermLine text="Done. Repository cloned successfully." color="#00e85c" delay={0} />}
           {status === 'error'   && <TermLine text={`error: ${errorMsg}`} color="#ff4d6d" delay={0} />}
@@ -675,7 +675,7 @@ function BuildStep({ onLaunch }) {
 
       {/* Terminal log */}
       <div className="w-full max-w-md mb-8">
-        <TerminalWindow title="duranta — make">
+        <TerminalWindow title="hnnoix — make">
           {buildLogLines.map((l, i) => <TermLine key={i} {...l} />)}
           {status === 'success' && <TermLine text="Build succeeded — all Phase 1 binaries are ready." color="#00e85c" delay={0} />}
           {status === 'error'   && <TermLine text={`make: error: ${errorMsg}`} color="#ff4d6d" delay={0} />}
@@ -789,7 +789,7 @@ export default function SetupWizard() {
               style={{ background: 'var(--neon)', boxShadow: '0 0 8px var(--neon)', animation: 'pulse 2s ease-in-out infinite' }}
             />
             <span className="font-mono text-xs font-bold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.25)', letterSpacing: '0.16em' }}>
-              DURANTA SETUP
+              HNNOIX SETUP
             </span>
           </div>
           <span
@@ -817,7 +817,7 @@ export default function SetupWizard() {
         className="relative mt-5 mb-4 shrink-0 font-mono text-[11px] text-center"
         style={{ color: 'rgba(255,255,255,0.12)', zIndex: 10 }}
       >
-        Duranta 5G Network Orchestrator &nbsp;·&nbsp; System Initialization v1.0
+        Hnnoix 5G Network Orchestrator &nbsp;·&nbsp; System Initialization v1.0
         {DEV_MOCK && (
           <span className="ml-2 px-1.5 py-0.5 rounded text-amber-500" style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)' }}>
             MOCK MODE
