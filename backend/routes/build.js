@@ -1,7 +1,11 @@
 const express = require('express');
-const {exec, spawn} = require('child_process');
+const { exec, spawn } = require('child_process');
+const { binaryPath } = require('../config/path');
+const { promisify } = require("util");
+const execAsync = promisify(exec);
 
-const buildRouter = express.Router() 
+
+const buildRouter = express.Router()
 
 let str = `
   sudo debconf-set-selections <<< "iperf3 iperf3/start_daemon  boolean false" 
@@ -9,7 +13,7 @@ let str = `
   export DEBIAN_FRONTEND=noninteractive 
 `
 
-buildRouter.get("/", (req, res) => {
+buildRouter.get("/", async(req, res) => {
   const command = `
     cd ~/duranta/openairinterface5g/cmake_targets &&
     ./build_oai -I &&
@@ -19,6 +23,20 @@ buildRouter.get("/", (req, res) => {
     ./build_oai --gNB -w SIMU &&
     ./build_oai --nrUE -w SIMU  
   `;
+
+  const check = `
+    cd ${binaryPath} &&
+    [ -f "nr-softmodem" ] && [ -f "nr-uesoftmodem" ] && echo 0 || echo 1`
+
+  await execAsync(check, (err, stdout, stderr) => {
+
+    if ((stdout.trim()) == "0") {
+      return res.json({
+        success: true,
+        message: "build files already exists"
+      })
+    }
+  })
 
   const child = spawn("bash", ["-c", command]);
 

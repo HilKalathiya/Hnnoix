@@ -1,59 +1,117 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Duranta Log Viewer</title>
-
+    <title>WebSocket Test</title>
     <style>
         body {
-            margin: 0;
-            padding: 20px;
-            background: #111;
-            color: #0f0;
             font-family: monospace;
+            background: #111;
+            color: #eee;
         }
 
         #logs {
             white-space: pre-wrap;
+            border: 1px solid #555;
+            padding: 10px;
+            height: 500px;
+            overflow-y: auto;
+        }
+
+        .stdout {
+            color: lightgreen;
+        }
+
+        .stderr {
+            color: tomato;
+        }
+
+        .status {
+            color: cyan;
+            font-weight: bold;
         }
     </style>
 </head>
 
 <body>
 
-<h2>Live Logs</h2>
+    <h2>OAI Process Logs</h2>
 
-<div id="logs"></div>
+    <div id="status">Connecting...</div>
+    <div id="logs"></div>
 
-<script>
+    <script>
+        const status = document.getElementById("status");
+        const logs = document.getElementById("logs");
 
-const logs = document.getElementById("logs");
+        const backendHttpUrl = window.location.protocol === "file:"
+            ? "http://localhost:3000"
+            : window.location.origin;
 
-const ws = new WebSocket("ws://localhost:5000");
+        const backendWsUrl = backendHttpUrl.replace(/^http/, "ws");
 
-ws.onopen = () => {
-    logs.innerHTML += "Connected\n";
-};
+        function setStatus(text) {
+            status.textContent = text;
+        }
 
-ws.onclose = () => {
-    logs.innerHTML += "\nDisconnected\n";
-};
+        function appendLine(className, text) {
+            const div = document.createElement("div");
+            div.className = className;
+            div.textContent = text;
+            logs.appendChild(div);
+            logs.scrollTop = logs.scrollHeight;
+        }
 
-ws.onerror = (err) => {
-    console.error(err);
-};
+        fetch(`${backendHttpUrl}/api`)
+            .then((response) => response.json())
+            .then((data) => {
+                appendLine("status", `HTTP connected: ${JSON.stringify(data)}`);
+            })
+            .catch((error) => {
+                appendLine("stderr", `HTTP connection failed: ${error.message}`);
+            });
 
-ws.onmessage = (event) => {
+        const ws = new WebSocket(backendWsUrl);
 
-    const data = JSON.parse(event.data);
+        ws.onopen = () => {
+            setStatus(`WebSocket connected to ${backendWsUrl}`);
+            appendLine("status", `WebSocket connected to ${backendWsUrl}`);
+        };
 
-    logs.innerHTML += `[${data.process}] ${data.message}`;
+        ws.onclose = () => {
+            setStatus("WebSocket disconnected");
+            appendLine("stderr", "WebSocket disconnected");
+        };
 
-    window.scrollTo(0, document.body.scrollHeight);
+        ws.onerror = (err) => {
+            appendLine("stderr", `WebSocket error: ${err.message || "unknown error"}`);
+        };
 
-};
+        ws.onmessage = (event) => {
 
-</script>
+            let msg;
+
+            try {
+                msg = JSON.parse(event.data);
+            } catch (error) {
+                appendLine("stderr", `Invalid message: ${event.data}`);
+                return;
+            }
+
+            if (msg.type === "log") {
+                appendLine(
+                    msg.stream,
+                    `[${msg.process.toUpperCase()} ${msg.stream}] ${msg.message}`,
+                );
+            }
+
+            if (msg.type === "status") {
+                appendLine("status", `[${msg.process.toUpperCase()}] ${msg.status}`);
+            }
+        };
+    </script>
 
 </body>
+
 </html>

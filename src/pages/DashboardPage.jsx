@@ -157,10 +157,7 @@ function normaliseStatus(raw) {
 }
 
 export default function DashboardPage() {
-  const { rsrp, latency, throughput, coreStatus, setCoreStatus } = useNetwork()
-
-  const [gnbStatus, setGnbStatus] = useState('offline')
-  const [ueStatus,  setUeStatus]  = useState('offline')
+  const { rsrp, latency, throughput, coreStatus, setCoreStatus, gnbStatus, setGnbStatus, ueStatus, setUeStatus } = useNetwork()
 
   const fetchStatus = async () => {
     try {
@@ -175,24 +172,24 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchStatus()
-    const int = setInterval(fetchStatus, 3000)
-    return () => clearInterval(int)
+    // Polling removed: WebSockets now automatically stream status updates!
   }, [])
 
   const handleAction = async (node, action) => {
-    if (node === 'core') {
-      // Core has no API, mock the status change immediately (no connecting state)
-      setCoreStatus(action === 'start' ? 'online' : 'offline')
-      return
-    }
-
-    // Optimistically set connecting while waiting
     if (action === 'start') {
       if (node === 'gnb') setGnbStatus('connecting')
-      else setUeStatus('connecting')
+      else if (node === 'ue') setUeStatus('connecting')
+      else if (node === 'core') setCoreStatus('online')
+    } else if (action === 'stop' && node === 'core') {
+      setCoreStatus('offline')
     }
+    
     try {
       await fetch(`/api/binary/${node}/${action}`)
+      // For core, since there is no status polling endpoint yet, we set it manually after successful fetch
+      if (node === 'core') {
+        setCoreStatus(action === 'start' ? 'online' : 'offline')
+      }
       fetchStatus()
     } catch (e) { console.error(e) }
   }

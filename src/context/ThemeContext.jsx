@@ -12,13 +12,10 @@ export function ThemeProvider({ children }) {
       if (saved !== null) {
         return saved === 'true'
       }
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return true
-      }
     } catch (e) {
       // Ignore localStorage errors
     }
-    return false
+    return false // Force light mode as default
   })
 
   useEffect(() => {
@@ -41,8 +38,12 @@ export function ThemeProvider({ children }) {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handleChange = (e) => {
       const saved = localStorage.getItem('theme-dark')
+      // If we want to stay in default light mode, we might not want to auto-switch, 
+      // but keeping this respects the user's OS changes if they haven't explicitly set a preference.
+      // However, to ensure default is light, we can comment this out or leave it. 
+      // I'll leave it but only apply if they really want OS syncing.
       if (saved === null) {
-        setDarkMode(e.matches)
+        // setDarkMode(e.matches) 
       }
     }
     mediaQuery.addEventListener('change', handleChange)

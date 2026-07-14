@@ -1,5 +1,13 @@
 import { createContext, useContext, useState, useEffect, useRef } from 'react'
 
+function normaliseStatus(raw) {
+  if (!raw) return 'offline'
+  const s = String(raw).toLowerCase()
+  if (s === 'running' || s === 'online') return 'online'
+  if (s === 'starting' || s === 'connecting' || s === 'loading') return 'connecting'
+  return 'offline'
+}
+
 const NetworkContext = createContext(null)
 
 export function NetworkProvider({ children }) {
@@ -8,6 +16,8 @@ export function NetworkProvider({ children }) {
   const [latency, setLatency] = useState(null)   // number | null
   const [throughput, setThroughput] = useState(null) // string | null
   const [coreStatus, setCoreStatus] = useState('offline')
+  const [gnbStatus, setGnbStatus] = useState('offline')
+  const [ueStatus, setUeStatus]   = useState('offline')
 
   // ── WS log stream – shared single connection ──────────
   const wsRef = useRef(null)
@@ -19,15 +29,29 @@ export function NetworkProvider({ children }) {
   useEffect(() => {
     let ws
     const connect = () => {
-      ws = new WebSocket('ws://127.0.0.1:3000')
+      const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+      const wsHost = window.location.hostname || 'localhost'
+      ws = new WebSocket(`${wsProtocol}//${wsHost}:3000`)
       wsRef.current = ws
 
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data)
-          if (data.type !== 'log') return
+          
+          if (data.type === 'status') {
+            const norm = normaliseStatus(data.status)
+            if (data.process === 'gnb') setGnbStatus(norm)
+            if (data.process === 'ue' || data.process === 'nrUE') setUeStatus(norm)
+            // Don't return here! We want to log the status change too.
+          }
 
-          const raw = data.message || ''
+          if (data.type !== 'log' && data.type !== 'status') return
+
+          // If it's a status message, format it specially
+          let raw = data.message || ''
+          if (data.type === 'status') {
+            raw = `[STATUS] Process ${data.process} is now ${data.status}`
+          }
 
           // ── Metric Extraction ─────────────────────────
           // RSRP: "serving_RSRP=-95 dBm" or "RSRP: -95"
@@ -89,7 +113,12 @@ export function NetworkProvider({ children }) {
   }, [])
 
   return (
-    <NetworkContext.Provider value={{ logs, setLogs, rsrp, latency, throughput, coreStatus, setCoreStatus }}>
+    <NetworkContext.Provider value={{ 
+      logs, setLogs, rsrp, latency, throughput, 
+      coreStatus, setCoreStatus,
+      gnbStatus, setGnbStatus,
+      ueStatus, setUeStatus
+    }}>
       {children}
     </NetworkContext.Provider>
   )

@@ -220,31 +220,14 @@ function normaliseStatus(raw) {
 }
 
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
-  const { coreStatus = 'offline' } = useNetwork() || {}
-  const [networkStatus, setNetworkStatus] = useState(INITIAL_NETWORK_STATUS)
+  const { coreStatus = 'offline', gnbStatus = 'offline', ueStatus = 'offline' } = useNetwork() || {}
 
-  useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const resGnb = await fetch('/api/binary/gnb/status')
-        const dataGnb = await resGnb.json()
-        const resUe = await fetch('/api/binary/ue/status')
-        const dataUe = await resUe.json()
+  const networkStatus = [
+    { id: 'core', label: 'Core',  status: coreStatus, hint: '127.0.0.5' },
+    { id: 'gnb',  label: 'gNB',   status: gnbStatus,  hint: 'NR-ARFCN'  },
+    { id: 'ue',   label: 'nrUE',  status: ueStatus,   hint: 'IMSI:001'  },
+  ]
 
-        setNetworkStatus(prev => prev.map(n => {
-          if (n.id === 'gnb' && dataGnb.success) return { ...n, status: normaliseStatus(dataGnb.status) }
-          if (n.id === 'ue' && dataUe.success) return { ...n, status: normaliseStatus(dataUe.status) }
-          return n
-        }))
-      } catch (e) {
-        console.error(e)
-      }
-    }
-
-    fetchStatus()
-    const int = setInterval(fetchStatus, 3000)
-    return () => clearInterval(int)
-  }, [])
   return (
     <aside
       className={`flex flex-col z-40 transition-all duration-300 ease-in-out shrink-0
@@ -318,7 +301,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
             </div>
             <div className="space-y-1.5">
               {networkStatus.map((n) => {
-                const status = n.id === 'core' ? coreStatus : n.status
+                const status = n.status
                 const label = n.label
                 const s = STATUS_STYLES[status] ?? STATUS_STYLES.offline
                 return (
@@ -339,7 +322,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
         ) : (
           <div className="flex flex-col items-center gap-2 py-1">
             {networkStatus.map((n) => {
-              const status = n.id === 'core' ? coreStatus : n.status
+              const status = n.status
               return (
                 <div key={n.label} title={`${n.label}: ${status}`}>
                   <StatusDot status={status} />

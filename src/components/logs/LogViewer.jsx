@@ -3,6 +3,7 @@ import {
   Play, Pause, Trash2, Download, Filter,
   ChevronDown, Search, AlignJustify, Hash,
 } from 'lucide-react'
+import { useNetwork } from '../../context/NetworkContext'
 
 // ─── Config ────────────────────────────────────────────────
 const STREAM_INTERVAL_MS = 280
@@ -97,73 +98,9 @@ function StatCard({ label, value, accent, icon: Icon }) {
   )
 }
 
-// ─── Main Component ───────────────────────────────────────
 export default function LogViewer() {
-  const [logs, setLogs] = useState([])
+  const { logs, setLogs } = useNetwork()
 
-  // Live stream
-  useEffect(() => {
-    let ws = new WebSocket('ws://127.0.0.1:3000');
-    let logCounter = 1;
-    
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.type === 'log') {
-          const lines = data.message.split('\\n').filter(l => l.trim().length > 0);
-          
-          const newEntries = lines.map(line => {
-            let level = 'INFO';
-            let tag = '[SYS]';
-            let cls = 'text-slate-500 dark:text-slate-400';
-            
-            const lowerLine = line.toLowerCase();
-            if (lowerLine.includes('error') || lowerLine.includes('fail') || lowerLine.includes('warn')) {
-              level = 'WARN';
-            } else if (line.includes('MDT')) {
-              level = 'MDT';
-            }
-            
-            const tagMatch = line.match(/\[([A-Z_]+)\]/);
-            if (tagMatch) {
-              tag = tagMatch[0];
-              cls = TAG_COLORS[tag] || 'text-slate-500 dark:text-slate-400';
-            }
-            
-            const now = new Date();
-            const ts = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}.${now.getMilliseconds().toString().padStart(3, '0')}`;
-            
-            let panel = 'gNB';
-            if (data.process === 'ue' || data.process === 'nrUE') panel = 'nrUE';
-            else if (data.process) panel = data.process === 'gnb' ? 'gNB' : data.process;
-            
-            return {
-              id: logCounter++,
-              ts,
-              level,
-              tag,
-              cls,
-              msg: line,
-              panel
-            };
-          });
-
-          setLogs(prev => {
-            const combined = [...prev, ...newEntries]
-            return combined.length > MAX_LOG_LINES
-              ? combined.slice(combined.length - MAX_LOG_LINES)
-              : combined
-          })
-        }
-      } catch (err) {
-        console.error("Failed to parse websocket message", err)
-      }
-    };
-    
-    return () => {
-      if (ws) ws.close();
-    }
-  }, [])
 
   const handleScroll = useCallback((e, setAutoScrollState) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target

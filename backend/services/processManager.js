@@ -23,14 +23,16 @@ async function startGNB() {
 	}
 
 	const child = run(
-		path.join(binaryPath, "nr-softmodem"),
+		"sudo",
 		[
+			path.join(binaryPath, "nr-softmodem"),
 			"-O",
 			gnbPath,
 			"--rfsim",
 			"--gNBs.[0].min_rxtxtime",
 			"3",
 		],
+
 	);
 
 	processes.gnb = child;
@@ -44,6 +46,7 @@ async function startGNB() {
 
 	child.stdout.on("data", (data) => {
 		const text = data.toString();
+		console.log("GNB STDOUT: ", text)
 
 		websocketManager.broadcast({
 			type: "log",
@@ -54,6 +57,9 @@ async function startGNB() {
 	});
 
 	child.stderr.on("data", (data) => {
+
+		console.log("GNB STDERR: ", data.toString())
+
 		websocketManager.broadcast({
 			type: "log",
 			process: "gnb",
@@ -64,7 +70,7 @@ async function startGNB() {
 
 	child.on("close", (code) => {
 
-		console.log(`gNB exited with code ${code}`);
+		console.log(`GNB exited with code ${code}`);
 
 		processes.gnb = null;
 		status.gnb = "stopped";
@@ -79,7 +85,7 @@ async function startGNB() {
 
 	child.on("error", (err) => {
 
-		console.error(err);
+		console.error("GNB ERR: ", err.message);
 
 		processes.gnb = null;
 		status.gnb = "stopped";
@@ -144,8 +150,9 @@ async function startUE() {
 	}
 
 	const child = run(
-		path.join(binaryPath, "nr-uesoftmodem"),
+		"sudo",
 		[
+			path.join(binaryPath, "nr-uesoftmodem"),
 			"-O",
 			uePath,
 			"-C", "3619200000",
@@ -166,6 +173,9 @@ async function startUE() {
 	});
 
 	child.stdout.on("data", (data) => {
+
+		// console.log("UE STDOUT: ", data.toString())
+
 		websocketManager.broadcast({
 			type: "log",
 			process: "ue",
@@ -174,7 +184,11 @@ async function startUE() {
 		});
 	});
 
+
 	child.stderr.on("data", (data) => {
+
+		console.log("UE STDERR: ", data.toString())
+
 		websocketManager.broadcast({
 			type: "log",
 			process: "ue",
@@ -200,7 +214,7 @@ async function startUE() {
 
 	child.on("error", (err) => {
 
-		console.error(err);
+		console.error("UE ERR:" ,err.message);
 
 		processes.ue = null;
 		status.ue = "stopped";
