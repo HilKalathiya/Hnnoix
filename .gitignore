@@ -25,3 +25,9 @@ dist-ssr
 Sources/*
 .vercel
 .env*.local
+
+# Logs and temp files
+*.log
+*.txt
+*.zip
+edit.json

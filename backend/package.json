@@ -1,0 +1,23 @@
+{
+  "name": "backend-duranta",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "predev": "chmod +x scripts/setup.sh && ./scripts/setup.sh",
+    "dev": "nodemon index.js",
+    "prestart": "chmod +x scripts/setup.sh && ./scripts/setup.sh",
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.2.1",
+    "mongod": "^2.0.0",
+    "mongodb": "^7.5.0",
+    "s": "^1.0.0",
+    "ws": "^8.21.0"
+  }
+}

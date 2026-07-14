@@ -1,1 +1,6 @@
-\n$ "C:\\Program Files\\Git\\cmd\\git.exe" add .\n
+\n$ "C:\\Program Files\\Git\\cmd\\git.exe" add .\n\n$ "C:\\Program Files\\Git\\cmd\\git.exe" commit -m "Rebrand to Hnnoix"\n[main 663abad] Rebrand to Hnnoix
+ 4 files changed, 53 insertions(+), 45 deletions(-)
+ create mode 100644 deploy_log.txt
+ delete mode 100644 vite.config.js.timestamp-1783931723091-dcd2dede680d8.mjs
+ create mode 100644 vite.config.js.timestamp-1783931803791-51893e8db366.mjs
+\n$ "C:\\Program Files\\Git\\cmd\\git.exe" push\n\n$ "C:\\Program Files\\nodejs\\npx.cmd" vercel --prod --yes\n\nError: spawnSync C:\Windows\system32\cmd.exe ETIMEDOUT\nhttps://hnnoix-73oxb8enq-hil-kalathiyas-projects.vercel.app

@@ -2,12 +2,18 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
+import { NetworkProvider } from './context/NetworkContext'
+import { ThemeProvider } from './context/ThemeContext'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <ThemeProvider>
+        <NetworkProvider>
+          <App />
+        </NetworkProvider>
+      </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>
 )

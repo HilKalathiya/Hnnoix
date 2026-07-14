@@ -1,19 +1,20 @@
 import { useState } from 'react'
 import { Settings, Monitor, Bell, Info, ChevronRight } from 'lucide-react'
+import { useNetwork } from '../context/NetworkContext'
+import { useTheme } from '../context/ThemeContext'
 
 // ─── Premium Toggle Switch ────────────────────────────────
-function Toggle({ label, description, defaultChecked = false, accentColor = '#00e85c' }) {
-  const [checked, setChecked] = useState(defaultChecked)
+function Toggle({ label, description, checked, onChange, accentColor = '#00e85c' }) {
   return (
     <div
       className="flex items-center justify-between py-3.5 cursor-pointer group transition-all duration-200"
       style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-      onClick={() => setChecked(c => !c)}
+      onClick={() => onChange(!checked)}
     >
       <div className="flex-1 min-w-0 pr-4">
-        <div className="text-[13.5px] text-slate-200 font-semibold group-hover:text-slate-100 transition-colors">{label}</div>
+        <div className="text-[13.5px] tracking-tight font-semibold text-[#171717] dark:text-[#EDEDED] transition-colors">{label}</div>
         {description && (
-          <div className="text-[11.5px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition-colors">{description}</div>
+          <div className="text-[11.5px] text-[#666666] dark:text-[#A1A1AA] font-semibold mt-0.5 transition-colors">{description}</div>
         )}
       </div>
       {/* Premium toggle */}
@@ -51,20 +52,11 @@ function Toggle({ label, description, defaultChecked = false, accentColor = '#00
 function SettingSection({ icon: Icon, title, accentColor, children }) {
   return (
     <div
-      className="rounded-2xl overflow-hidden"
-      style={{
-        background: 'linear-gradient(145deg, rgba(14,16,26,0.88) 0%, rgba(10,12,19,0.92) 100%)',
-        border: '1px solid rgba(255,255,255,0.07)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)',
-      }}
+      className="rounded-2xl overflow-hidden bg-[#FFFFFF] border border-black/5 shadow-[0_2px_10px_rgba(0,0,0,0.04)] dark:bg-[#111111] dark:border-white/10 dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-colors"
     >
       {/* Header */}
       <div
-        className="flex items-center gap-3 px-5 py-4 relative"
-        style={{
-          background: `linear-gradient(90deg, ${accentColor}08 0%, rgba(255,255,255,0.01) 100%)`,
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-        }}
+        className="flex items-center gap-3 px-5 py-4 relative bg-black/5 dark:bg-white/5 border-b border-black/5 dark:border-white/10"
       >
         {/* Accent left border */}
         <div
@@ -78,8 +70,7 @@ function SettingSection({ icon: Icon, title, accentColor, children }) {
           <Icon className="w-4 h-4" style={{ color: accentColor }} />
         </div>
         <span
-        className="text-[13.5px] font-bold text-slate-200"
-        style={{ fontFamily: "'Syne', sans-serif" }}
+        className="text-[13.5px] tracking-tight font-semibold text-[#171717] dark:text-[#EDEDED]"
       >
         {title}
       </span>
@@ -95,77 +86,81 @@ function SettingSection({ icon: Icon, title, accentColor, children }) {
 // ─── Info row ─────────────────────────────────────────────
 function InfoRow({ label, value, valueColor }) {
   return (
-    <div className="flex items-center justify-between py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-      <span className="text-[12.5px] text-slate-400 font-mono font-semibold">{label}</span>
-      <span className="text-[12.5px] font-mono font-bold" style={{ color: valueColor || '#a0aec8' }}>{value}</span>
+    <div className="flex items-center justify-between py-2.5 border-b border-black/5 dark:border-white/5">
+      <span className="text-[12.5px] text-[#666666] dark:text-[#A1A1AA] font-mono font-semibold tracking-tight">{label}</span>
+      <span className="text-[12.5px] font-mono font-semibold" style={{ color: valueColor || 'inherit' }}>{value}</span>
     </div>
   )
 }
 
 export default function SettingsPage() {
+  const { darkMode, setDarkMode } = useTheme()
+  const [notifications, setNotifications] = useState(true)
+
   return (
     <div className="p-6 space-y-5 animate-fade-in max-w-2xl mx-auto">
 
       {/* ── Premium Page header ─────────────────── */}
       <div className="flex items-center gap-3 mb-2">
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center"
-          style={{ background: 'rgba(100,116,139,0.1)', border: '1px solid rgba(100,116,139,0.2)', boxShadow: '0 0 16px rgba(100,116,139,0.1)' }}
+          className="w-10 h-10 rounded-xl flex items-center justify-center bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10"
         >
-          <Settings className="w-5 h-5 text-slate-400" />
+          <Settings className="w-5 h-5 text-[#666666] dark:text-[#A1A1AA]" />
         </div>
         <div>
         <h2
-          className="text-[20px] font-extrabold text-slate-100 tracking-tight"
-          style={{ fontFamily: "'Syne', sans-serif" }}
+          className="text-[20px] tracking-tight font-semibold text-[#171717] dark:text-[#EDEDED] leading-tight"
         >
           Settings
         </h2>
-        <p className="text-[12.5px] text-slate-400 font-medium">Application preferences & display options</p>
+        <p className="text-[12.5px] text-[#666666] dark:text-[#A1A1AA] font-semibold">Application preferences & display options</p>
       </div>
       </div>
 
       {/* ── Display Section ─────────────────────── */}
-      <SettingSection icon={Monitor} title="Display" accentColor="#0094ff">
-        <Toggle label="Dark Mode"           description="Telecom console theme"                defaultChecked accentColor="#0094ff" />
-        <Toggle label="Compact Layout"      description="Reduce padding & spacing"             accentColor="#0094ff" />
-        <Toggle label="Show Line Numbers"   description="Line numbers in log viewer"           defaultChecked accentColor="#0094ff" />
-        <Toggle label="CRT Scanline Effect" description="Subtle scanline overlay on terminal"  defaultChecked accentColor="#0094ff" />
+      <SettingSection icon={Monitor} title="Appearance">
+        <Toggle 
+          label="Dark Mode" 
+          description="Use deep space theme" 
+          checked={darkMode}
+          onChange={setDarkMode}
+          accentColor="#7c6aff" 
+        />
+        <Toggle 
+          label="Animations" 
+          description="Enable glow and flow effects" 
+          checked={true}
+          onChange={() => {}}
+        />
       </SettingSection>
 
       {/* ── Notifications Section ───────────────── */}
-      <SettingSection icon={Bell} title="Notifications" accentColor="#7c6aff">
-        <Toggle label="RSRP Drop Alerts"    description="Trigger on MDT low-RSRP events"        defaultChecked accentColor="#7c6aff" />
-        <Toggle label="Registration Events" description="NAS Registration Accept / Reject"       defaultChecked accentColor="#7c6aff" />
-        <Toggle label="Sound Alerts"        description="Audio ping on critical events"          accentColor="#7c6aff" />
+      <SettingSection icon={Bell} title="Alerts & Notifications">
+        <Toggle 
+          label="System Alerts" 
+          description="Notify on critical failures" 
+          checked={notifications}
+          onChange={setNotifications}
+          accentColor="#ff4d6d" 
+        />
       </SettingSection>
 
       {/* ── About Section ───────────────────────── */}
       <div
-        className="rounded-2xl overflow-hidden"
-        style={{
-          background: 'linear-gradient(145deg, rgba(14,16,26,0.88) 0%, rgba(10,12,19,0.92) 100%)',
-          border: '1px solid rgba(255,255,255,0.07)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)',
-        }}
+        className="rounded-2xl overflow-hidden bg-[#FFFFFF] border border-black/5 shadow-[0_2px_10px_rgba(0,0,0,0.04)] dark:bg-[#111111] dark:border-white/10 dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-colors"
       >
         <div
-          className="flex items-center gap-3 px-5 py-4 relative"
-          style={{
-            background: 'linear-gradient(90deg, rgba(100,116,139,0.06) 0%, rgba(255,255,255,0.01) 100%)',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-          }}
+          className="flex items-center gap-3 px-5 py-4 relative bg-black/5 dark:bg-white/5 border-b border-black/5 dark:border-white/10"
         >
-          <div className="absolute left-0 top-0 bottom-0 w-0.5" style={{ background: 'linear-gradient(180deg, #64748b 0%, #64748b44 100%)' }} />
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(100,116,139,0.12)', border: '1px solid rgba(100,116,139,0.24)' }}>
-            <Info className="w-4 h-4 text-slate-500" />
+          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#666666] dark:bg-[#A1A1AA]" />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/10">
+            <Info className="w-4 h-4 text-[#666666] dark:text-[#A1A1AA]" />
           </div>
-          <span className="text-[13px] font-bold text-slate-200">About</span>
+          <span className="text-[13px] tracking-tight font-semibold text-[#171717] dark:text-[#EDEDED]">About</span>
 
           {/* Version badge */}
           <span
-            className="ml-auto text-[10px] font-bold px-2.5 py-1 rounded-full"
-            style={{ background: 'rgba(124,106,255,0.1)', border: '1px solid rgba(124,106,255,0.25)', color: '#a09aff' }}
+            className="ml-auto text-[10px] font-semibold tracking-tight px-2.5 py-1 rounded-md bg-[#60A5FA]/10 text-[#60A5FA] border border-[#60A5FA]/20"
           >
             v0.1.0-alpha
           </span>
@@ -177,7 +172,7 @@ export default function SettingsPage() {
           <InfoRow label="Styling"          value="Tailwind CSS v3"        />
           <InfoRow label="Backend Target"   value="FastAPI / Express"      />
           <InfoRow label="5G Stack"         value="Hnnoix gNB + Hnnoix Core"  />
-          <InfoRow label="Mode"             value="MOCK (no backend)"      valueColor="#f59e0b" />
+          <InfoRow label="Mode"             value="LIVE (Connected)"       valueColor="#00e85c" />
         </div>
 
         {/* View Docs link */}
@@ -186,12 +181,9 @@ export default function SettingsPage() {
             href="https://github.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200"
-            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: '#64748b' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,106,255,0.06)'; e.currentTarget.style.borderColor = 'rgba(124,106,255,0.25)'; e.currentTarget.style.color = '#a09aff' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = '#64748b' }}
+            className="flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 bg-transparent border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 text-[#171717] dark:text-[#EDEDED]"
           >
-            <span className="text-[12px] font-semibold">View Documentation</span>
+            <span className="text-[12px] font-semibold tracking-tight">View Documentation</span>
             <ChevronRight className="w-4 h-4" />
           </a>
         </div>

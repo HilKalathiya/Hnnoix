@@ -27,17 +27,11 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  padding: 0;
-  background-color: #07080c;
-  /* Inter: neutral-width, high legibility — not stretched like Outfit */
-  color: #f0f4ff;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 1.65;
+  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: -0.011em;
+  @apply bg-[#F4F5F7] text-slate-900 dark:bg-[#050505] dark:text-slate-50 transition-colors duration-300 font-sans antialiased;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -205,10 +199,10 @@ h1, h2, h3 {
   border-radius: 50%;
   flex-shrink: 0;
 }
-.status-dot.online  { background: var(--neon);   box-shadow: 0 0 8px 2px rgba(0,232,92,0.55); }
-.status-dot.offline { background: #2e3347; }
-.status-dot.warning { background: var(--amber);  box-shadow: 0 0 8px 2px rgba(245,158,11,0.55); }
-.status-dot.error   { background: var(--danger); box-shadow: 0 0 8px 2px rgba(255,77,109,0.55); }
+.status-dot.online  { background: #10b981; box-shadow: 0 0 12px rgba(16,185,129,0.35); }
+.status-dot.offline { background: #64748b; }
+.status-dot.warning { background: #f59e0b; box-shadow: 0 0 12px rgba(245,158,11,0.35); }
+.status-dot.error   { background: #f43f5e; box-shadow: 0 0 12px rgba(244,63,94,0.35); }
 
 /* ─────────────────────────────────────────────────────────
    LOG LINE COLOUR CLASSES

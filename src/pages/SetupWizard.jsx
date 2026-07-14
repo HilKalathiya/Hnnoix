@@ -8,7 +8,7 @@ const API_BASE = ''
 // ─── DEV MOCK ────────────────────────────────────────────────────────────────
 // Set to true to simulate API success without a running backend.
 // Set to false (or remove) when your real backend is live.
-const DEV_MOCK = true
+const DEV_MOCK = false
 
 // ─── Safe JSON fetcher ───────────────────────────────────────────────────────
 async function safeFetch(url) {
@@ -259,7 +259,7 @@ function StepDots({ step }) {
 }
 
 // ─── Premium Terminal Log Line ────────────────────────────────────────────────
-function TermLine({ text, color = '#64748b', delay = 0 }) {
+function TermLine({ text, colorClass = 'text-slate-600 dark:text-slate-400', delay = 0 }) {
   const [visible, setVisible] = useState(false)
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), delay)
@@ -268,14 +268,13 @@ function TermLine({ text, color = '#64748b', delay = 0 }) {
 
   return (
     <div
-      className="font-mono text-xs flex items-start gap-2 transition-all duration-400"
+      className={`font-mono text-xs flex items-start gap-2 transition-all duration-400 ${colorClass}`}
       style={{
-        color,
         opacity:   visible ? 1 : 0,
         transform: visible ? 'translateX(0)' : 'translateX(-10px)',
       }}
     >
-      <span style={{ color: 'rgba(124,106,255,0.5)', marginTop: 1, flexShrink: 0 }}>$</span>
+      <span className="text-violet-500/50 mt-[1px] shrink-0">$</span>
       <span style={{ lineHeight: 1.6 }}>{text}</span>
     </div>
   )
@@ -285,17 +284,11 @@ function TermLine({ text, color = '#64748b', delay = 0 }) {
 function TerminalWindow({ title, children }) {
   return (
     <div
-      className="w-full rounded-xl text-left scanlines relative overflow-hidden"
-      style={{
-        background: 'rgba(4,5,8,0.85)',
-        border: '1px solid rgba(255,255,255,0.07)',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03)',
-      }}
+      className="w-full rounded-xl text-left scanlines relative overflow-hidden bg-slate-50 dark:bg-[#000000] border border-slate-200 dark:border-white/10 shadow-md dark:shadow-2xl"
     >
       {/* Mac-style title bar */}
       <div
-        className="flex items-center gap-2 px-4 py-2.5 border-b"
-        style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}
+        className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-200 dark:border-white/10 bg-white dark:bg-[#111111]"
       >
         <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#ff5f57' }} />
         <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#febc2e' }} />
@@ -310,10 +303,10 @@ function TerminalWindow({ title, children }) {
 // ─── WELCOME STEP ─────────────────────────────────────────────────────────────
 function WelcomeStep({ onBegin }) {
   const lines = [
-    { text: 'system --check-dependencies',  color: '#94a3b8', delay: 200  },
-    { text: 'docker --version 24.0.6',       color: '#3db0ff', delay: 700  },
-    { text: 'cmake --version 3.26.4',        color: '#3db0ff', delay: 1100 },
-    { text: 'Initializing Hnnoix setup…',   color: '#00e85c', delay: 1600 },
+    { text: 'system --check-dependencies',  colorClass: 'text-slate-600 dark:text-slate-400', delay: 200  },
+    { text: 'docker --version 24.0.6',       colorClass: 'text-sky-600 dark:text-sky-400', delay: 700  },
+    { text: 'cmake --version 3.26.4',        colorClass: 'text-sky-600 dark:text-sky-400', delay: 1100 },
+    { text: 'Initializing Hnnoix setup…',   colorClass: 'text-emerald-600 dark:text-emerald-400', delay: 1600 },
   ]
 
   return (
@@ -321,14 +314,13 @@ function WelcomeStep({ onBegin }) {
       {/* Premium Logo */}
       <div className="relative mb-5">
         <div
-          className="w-20 h-20 rounded-2xl flex items-center justify-center relative"
+          className="w-24 h-24 rounded-2xl flex items-center justify-center relative bg-white/5 backdrop-blur-md"
           style={{
-            background: 'linear-gradient(135deg, rgba(124,106,255,0.15) 0%, rgba(0,148,255,0.1) 100%)',
-            border: '1px solid rgba(124,106,255,0.3)',
-            boxShadow: '0 0 40px rgba(124,106,255,0.2), inset 0 1px 0 rgba(255,255,255,0.08)',
+            border: '1px solid rgba(124,106,255,0.2)',
+            boxShadow: '0 0 40px rgba(124,106,255,0.15), inset 0 1px 0 rgba(255,255,255,0.08)',
           }}
         >
-          <LogoMark size={52} />
+          <img src="/logo.jpeg" alt="Hnnoix Logo" className="w-[85%] h-[85%] object-contain" />
         </div>
         {/* Animated rings */}
         <div className="absolute inset-0 rounded-2xl" style={{ border: '1.5px solid rgba(0,232,92,0.2)', animation: 'wizardRing 3s ease-in-out infinite' }} />
@@ -355,7 +347,7 @@ function WelcomeStep({ onBegin }) {
         style={{ fontFamily: "'Syne', sans-serif", letterSpacing: '-0.035em' }}
       >
         <span className="brand-gradient">Hnnoix</span>
-        <span style={{ color: '#dce4ff' }}> + Hnnoix Core</span>
+        <span className="text-slate-800 dark:text-[#dce4ff]"> + Hnnoix Core</span>
       </h1>
       <p
         className="text-[15px] font-bold mb-1"
@@ -371,8 +363,8 @@ function WelcomeStep({ onBegin }) {
 
       {/* Description */}
       <p
-        className="text-[14px] leading-relaxed max-w-sm mt-3 mb-7 font-medium"
-        style={{ color: '#94a3c8', lineHeight: 1.75 }}
+        className="text-[14px] leading-relaxed max-w-sm mt-3 mb-7 font-medium text-slate-600 dark:text-[#94a3c8]"
+        style={{ lineHeight: 1.75 }}
       >
         This wizard clones the Hnnoix repository and compiles the required RAN binaries before launching the dashboard.
         Requires internet access and may take several minutes.
@@ -382,7 +374,7 @@ function WelcomeStep({ onBegin }) {
       <div className="w-full max-w-sm mb-8">
         <TerminalWindow title="hnnoix — bash">
           {lines.map((l, i) => <TermLine key={i} {...l} />)}
-          <div className="font-mono text-xs text-neon-400 terminal-cursor mt-1">&nbsp;</div>
+          <div className="font-mono text-xs text-emerald-600 dark:text-neon-400 terminal-cursor mt-1">&nbsp;</div>
         </TerminalWindow>
       </div>
 
@@ -390,15 +382,7 @@ function WelcomeStep({ onBegin }) {
       <button
         id="begin-setup-btn"
         onClick={onBegin}
-        className="btn-shimmer relative group px-8 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 active:scale-95"
-        style={{
-          background: 'linear-gradient(135deg, #7c6aff 0%, #0094ff 100%)',
-          boxShadow: '0 4px 28px rgba(124,106,255,0.45), 0 1px 0 rgba(255,255,255,0.12) inset',
-          color: '#fff',
-          letterSpacing: '-0.01em',
-        }}
-        onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 6px 36px rgba(124,106,255,0.6), 0 1px 0 rgba(255,255,255,0.12) inset'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-        onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 4px 28px rgba(124,106,255,0.45), 0 1px 0 rgba(255,255,255,0.12) inset'; e.currentTarget.style.transform = '' }}
+        className="btn-shimmer relative group px-8 py-3.5 rounded-xl font-semibold tracking-tight text-[13px] transition-all duration-200 active:scale-95 bg-[#171717] text-[#EDEDED] hover:bg-black dark:bg-[#EDEDED] dark:text-[#0A0A0A] dark:hover:bg-white"
       >
         <span className="relative z-10 flex items-center gap-2.5">
           Begin System Setup
@@ -432,8 +416,15 @@ function CloneStep({ onProceed }) {
 
     try {
       const data = await safeFetch(`${API_BASE}/api/setup`)
-      setStatus(data.success ? 'success' : 'error')
-      if (!data.success) setErrorMsg(data.message || 'Repository clone failed. Check backend logs.')
+      
+      // SMART SKIP: If success, or if it failed exactly because it's already cloned
+      if (data.success || (data.message && data.message.includes('cloning failed'))) {
+        onProceed()
+        return
+      }
+      
+      setStatus('error')
+      setErrorMsg(data.message || 'Repository clone failed. Check backend logs.')
     } catch (err) {
       setStatus('error')
       setErrorMsg(err.message || 'Network error — could not reach the server.')
@@ -443,10 +434,10 @@ function CloneStep({ onProceed }) {
   useEffect(() => { runClone() }, [])
 
   const logLines = [
-    { text: `git clone https://github.com/HilKalathiya/Hnnoix`, color: '#3db0ff', delay: 0   },
-    { text: 'Resolving deltas: 100% (18432/18432)', color: '#94a3b8', delay: 500 },
-    { text: 'Receiving objects: 100% (124563/124563)', color: '#94a3b8', delay: 1000 },
-    { text: 'Checking connectivity…', color: '#94a3b8', delay: 1600 },
+    { text: `git clone https://github.com/HilKalathiya/Hnnoix`, colorClass: 'text-sky-600 dark:text-sky-400', delay: 0   },
+    { text: 'Resolving deltas: 100% (18432/18432)', colorClass: 'text-slate-600 dark:text-slate-400', delay: 500 },
+    { text: 'Receiving objects: 100% (124563/124563)', colorClass: 'text-slate-600 dark:text-slate-400', delay: 1000 },
+    { text: 'Checking connectivity…', colorClass: 'text-slate-600 dark:text-slate-400', delay: 1600 },
   ]
 
   return (
@@ -496,9 +487,9 @@ function CloneStep({ onProceed }) {
       <div className="w-full max-w-md mb-8">
         <TerminalWindow title="hnnoix — git">
           {logLines.map((l, i) => <TermLine key={i} {...l} />)}
-          {status === 'success' && <TermLine text="Done. Repository cloned successfully." color="#00e85c" delay={0} />}
-          {status === 'error'   && <TermLine text={`error: ${errorMsg}`} color="#ff4d6d" delay={0} />}
-          {status === 'loading' && <div className="font-mono text-xs text-neon-400 terminal-cursor mt-1">&nbsp;</div>}
+          {status === 'success' && <TermLine text="Done. Repository cloned successfully." colorClass="text-emerald-600 dark:text-emerald-400" delay={0} />}
+          {status === 'error'   && <TermLine text={`error: ${errorMsg}`} colorClass="text-rose-600 dark:text-rose-400" delay={0} />}
+          {status === 'loading' && <div className="font-mono text-xs text-emerald-600 dark:text-neon-400 terminal-cursor mt-1">&nbsp;</div>}
         </TerminalWindow>
       </div>
 
@@ -507,15 +498,7 @@ function CloneStep({ onProceed }) {
         <button
           id="proceed-to-build-btn"
           onClick={onProceed}
-          className="btn-shimmer relative px-8 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 active:scale-95"
-          style={{
-            background: 'linear-gradient(135deg, #00e85c 0%, #00c94d 100%)',
-            boxShadow: '0 4px 28px rgba(0,232,92,0.4)',
-            color: '#07080c',
-            letterSpacing: '-0.01em',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 6px 36px rgba(0,232,92,0.6)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-          onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 4px 28px rgba(0,232,92,0.4)'; e.currentTarget.style.transform = '' }}
+          className="btn-shimmer relative px-8 py-3.5 rounded-xl font-semibold tracking-tight text-[13px] transition-all duration-200 active:scale-95 bg-[#171717] text-[#EDEDED] hover:bg-black dark:bg-[#EDEDED] dark:text-[#0A0A0A] dark:hover:bg-white"
         >
           <span className="flex items-center gap-2.5">
             Proceed to Build
@@ -529,13 +512,7 @@ function CloneStep({ onProceed }) {
         <button
           id="retry-clone-btn"
           onClick={runClone}
-          className="px-8 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 active:scale-95"
-          style={{
-            background: 'rgba(255,77,109,0.1)',
-            border: '1.5px solid rgba(255,77,109,0.4)',
-            color: '#ff4d6d',
-            boxShadow: '0 0 20px rgba(255,77,109,0.15)',
-          }}
+          className="px-8 py-3.5 rounded-xl font-semibold tracking-tight text-[13px] transition-all duration-200 active:scale-95 bg-transparent border border-black/10 text-[#171717] hover:bg-black/5 dark:border-white/10 dark:text-[#EDEDED] dark:hover:bg-white/5"
         >
           <span className="flex items-center gap-2">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -554,6 +531,27 @@ function BuildStep({ onLaunch }) {
   const [status, setStatus]     = useState('idle')
   const [errorMsg, setErrorMsg] = useState('')
   const [progress, setProgress] = useState(0)
+
+  // SMART SKIP CHECK
+  useEffect(() => {
+    const checkExists = async () => {
+      try {
+        // Assume we check an endpoint that tells us if binaries exist
+        const res = await fetch(`${API_BASE}/api/build/check`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.exists) {
+            setStatus('already_built')
+            return
+          }
+        }
+      } catch (e) {
+        // Ignore and proceed to auto-build if endpoint doesn't exist
+      }
+      runBuild()
+    }
+    checkExists()
+  }, [])
 
   const runBuild = async () => {
     setStatus('loading')
@@ -594,14 +592,12 @@ function BuildStep({ onLaunch }) {
     }
   }
 
-  useEffect(() => { runBuild() }, [])
-
   const buildLogLines = [
-    { text: 'cmake .. -DCMAKE_BUILD_TYPE=Release',         color: '#3db0ff', delay: 0    },
-    { text: 'make -j$(nproc) nr-softmodem nr-uesoftmodem', color: '#94a3b8', delay: 500  },
-    { text: 'Compiling gNB (nr-softmodem)…',               color: '#94a3b8', delay: 1100 },
-    { text: 'Compiling nrUE (nr-uesoftmodem)…',            color: '#94a3b8', delay: 1700 },
-    { text: 'Linking Phase 1 binaries…',                   color: '#a78bfa', delay: 2400 },
+    { text: 'cmake .. -DCMAKE_BUILD_TYPE=Release',         colorClass: 'text-sky-600 dark:text-sky-400', delay: 0    },
+    { text: 'make -j$(nproc) nr-softmodem nr-uesoftmodem', colorClass: 'text-slate-600 dark:text-slate-400', delay: 500  },
+    { text: 'Compiling gNB (nr-softmodem)…',               colorClass: 'text-slate-600 dark:text-slate-400', delay: 1100 },
+    { text: 'Compiling nrUE (nr-uesoftmodem)…',            colorClass: 'text-slate-600 dark:text-slate-400', delay: 1700 },
+    { text: 'Linking Phase 1 binaries…',                   colorClass: 'text-violet-600 dark:text-violet-400', delay: 2400 },
   ]
 
   return (
@@ -615,6 +611,20 @@ function BuildStep({ onLaunch }) {
             <Spinner color="#7c6aff" />
             <p className="mt-4 font-semibold text-slate-200 text-base">Compiling RAN Binaries (gNB & nrUE)…</p>
             <p className="text-slate-500 text-sm mt-1">This may take several minutes. Do not close this window.</p>
+          </div>
+        )}
+        {status === 'already_built' && (
+          <div className="animate-fade-in flex flex-col items-center">
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+              style={{ background: 'rgba(0,148,255,0.1)', border: '1.5px solid rgba(0,148,255,0.4)', boxShadow: '0 0 32px rgba(0,148,255,0.35)' }}
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0094ff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12l5 5l10 -10" />
+              </svg>
+            </div>
+            <p className="font-bold text-[#0094ff] text-lg">Binaries Already Exist</p>
+            <p className="text-slate-500 text-sm mt-1">The RAN binaries were found on your system.</p>
           </div>
         )}
         {status === 'success' && (
@@ -677,26 +687,34 @@ function BuildStep({ onLaunch }) {
       <div className="w-full max-w-md mb-8">
         <TerminalWindow title="hnnoix — make">
           {buildLogLines.map((l, i) => <TermLine key={i} {...l} />)}
-          {status === 'success' && <TermLine text="Build succeeded — all Phase 1 binaries are ready." color="#00e85c" delay={0} />}
-          {status === 'error'   && <TermLine text={`make: error: ${errorMsg}`} color="#ff4d6d" delay={0} />}
-          {status === 'loading' && <div className="font-mono text-xs text-violet-400 terminal-cursor mt-1">&nbsp;</div>}
+          {status === 'success' && <TermLine text="Build succeeded — all Phase 1 binaries are ready." colorClass="text-emerald-600 dark:text-emerald-400" delay={0} />}
+          {status === 'error'   && <TermLine text={`make: error: ${errorMsg}`} colorClass="text-rose-600 dark:text-rose-400" delay={0} />}
+          {status === 'loading' && <div className="font-mono text-xs text-violet-600 dark:text-violet-400 terminal-cursor mt-1">&nbsp;</div>}
         </TerminalWindow>
       </div>
 
       {/* Actions */}
+      {status === 'already_built' && (
+        <div className="flex items-center gap-4 mt-4">
+          <button
+            onClick={runBuild}
+            className="px-6 py-3 rounded-xl font-semibold tracking-tight text-[13px] transition-all duration-200 active:scale-95 bg-transparent border border-black/10 text-[#171717] hover:bg-black/5 dark:border-white/10 dark:text-[#EDEDED] dark:hover:bg-white/5"
+          >
+            Rebuild
+          </button>
+          <button
+            onClick={onLaunch}
+            className="btn-shimmer relative px-8 py-3 rounded-xl font-semibold tracking-tight text-[13px] transition-all duration-200 active:scale-95 bg-[#171717] text-[#EDEDED] hover:bg-black dark:bg-[#EDEDED] dark:text-[#0A0A0A] dark:hover:bg-white"
+          >
+            Launch Dashboard
+          </button>
+        </div>
+      )}
       {status === 'success' && (
         <button
           id="launch-dashboard-btn"
           onClick={onLaunch}
-          className="btn-shimmer relative px-10 py-4 rounded-xl font-bold text-sm transition-all duration-200 active:scale-95"
-          style={{
-            background: 'linear-gradient(135deg,#00e85c,#7c6aff)',
-            boxShadow: '0 6px 36px rgba(124,106,255,0.5), 0 4px 20px rgba(0,232,92,0.3)',
-            color: '#fff',
-            letterSpacing: '-0.01em',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 48px rgba(124,106,255,0.65), 0 4px 24px rgba(0,232,92,0.4)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-          onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 6px 36px rgba(124,106,255,0.5), 0 4px 20px rgba(0,232,92,0.3)'; e.currentTarget.style.transform = '' }}
+          className="btn-shimmer relative px-10 py-4 rounded-xl font-semibold tracking-tight text-[13px] transition-all duration-200 active:scale-95 bg-[#171717] text-[#EDEDED] hover:bg-black dark:bg-[#EDEDED] dark:text-[#0A0A0A] dark:hover:bg-white"
         >
           <span className="relative z-10 flex items-center gap-2.5">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -711,13 +729,7 @@ function BuildStep({ onLaunch }) {
         <button
           id="retry-build-btn"
           onClick={runBuild}
-          className="px-8 py-3.5 rounded-xl font-bold text-sm transition-all duration-200 active:scale-95"
-          style={{
-            background: 'rgba(255,77,109,0.1)',
-            border: '1.5px solid rgba(255,77,109,0.4)',
-            color: '#ff4d6d',
-            boxShadow: '0 0 20px rgba(255,77,109,0.15)',
-          }}
+          className="px-8 py-3.5 rounded-xl font-semibold tracking-tight text-[13px] transition-all duration-200 active:scale-95 bg-transparent border border-black/10 text-[#171717] hover:bg-black/5 dark:border-white/10 dark:text-[#EDEDED] dark:hover:bg-white/5"
         >
           <span className="flex items-center gap-2">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -744,8 +756,7 @@ export default function SetupWizard() {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col items-center overflow-y-auto overflow-x-hidden py-8"
-      style={{ background: '#07080c' }}
+      className="fixed inset-0 flex flex-col items-center overflow-y-auto overflow-x-hidden py-8 dark:bg-[#07080c] bg-slate-50 transition-colors"
     >
       {/* Glow orbs */}
       <div className="wizard-orb" style={{ width: 600, height: 600, top: '50%', left: '50%', transform: 'translate(-50%, -65%)', background: 'radial-gradient(circle, rgba(124,106,255,0.08) 0%, transparent 70%)', animation: 'orbFloat 8s ease-in-out infinite' }} />
@@ -766,15 +777,13 @@ export default function SetupWizard() {
 
       {/* Card */}
       <div
-        className="relative w-full mx-4 my-auto shrink-0 rounded-2xl p-8 md:p-10 overflow-hidden noise-overlay"
+        className="relative w-full mx-4 my-auto shrink-0 rounded-2xl p-8 md:p-10 overflow-hidden noise-overlay dark:bg-[rgba(12,13,22,0.9)] bg-white dark:border-[rgba(255,255,255,0.08)] border-slate-200"
         style={{
           maxWidth: 580,
           zIndex: 10,
-          background: 'linear-gradient(145deg, rgba(12,13,22,0.9) 0%, rgba(8,9,16,0.95) 100%)',
           backdropFilter: 'blur(32px)',
           WebkitBackdropFilter: 'blur(32px)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          boxShadow: '0 40px 100px rgba(0,0,0,0.75), 0 0 0 1px rgba(124,106,255,0.1), inset 0 1px 0 rgba(255,255,255,0.06)',
+          boxShadow: '0 40px 100px rgba(0,0,0,0.1)',
         }}
       >
         {/* Corner accents */}

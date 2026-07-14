@@ -8,7 +8,7 @@ export default function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-carbon-900 grid-bg relative">
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 grid-bg relative transition-colors duration-300">
       {/* Mobile Backdrop */}
       {mobileOpen && (
         <div 

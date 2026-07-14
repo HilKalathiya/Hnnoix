@@ -93,14 +93,13 @@ function SonOrbitalLogo() {
 
       {/* Center icon */}
       <div
-        className="relative z-10 w-16 h-16 rounded-2xl flex items-center justify-center"
+        className="relative z-10 w-20 h-20 rounded-2xl flex items-center justify-center bg-white/5 backdrop-blur-md"
         style={{
-          background: 'linear-gradient(135deg, rgba(192,132,252,0.15) 0%, rgba(0,148,255,0.1) 100%)',
           border: '1px solid rgba(192,132,252,0.3)',
           boxShadow: '0 0 32px rgba(192,132,252,0.2)',
         }}
       >
-        <Radio className="w-8 h-8" style={{ color: '#c084fc' }} />
+        <img src="/logo.jpeg" alt="Hnnoix Logo" className="w-[85%] h-[85%] object-contain" />
       </div>
     </div>
   )

@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
+import { useNetwork } from '../../context/NetworkContext'
 import {
   LayoutDashboard,
   ScrollText,
@@ -78,26 +80,28 @@ const bottomNav = [
   },
 ]
 
-const networkStatus = [
-  { label: 'Core',  status: 'offline', hint: '127.0.0.5' },
-  { label: 'gNB',   status: 'offline', hint: 'NR-ARFCN'  },
-  { label: 'nrUE',  status: 'offline', hint: 'IMSI:001'  },
+const INITIAL_NETWORK_STATUS = [
+  { id: 'core', label: 'Core',  status: 'offline', hint: '127.0.0.5' },
+  { id: 'gnb',  label: 'gNB',   status: 'offline', hint: 'NR-ARFCN'  },
+  { id: 'ue',   label: 'nrUE',  status: 'offline', hint: 'IMSI:001'  },
 ]
 
 const STATUS_STYLES = {
-  online:  { dot: '#00e85c',  shadow: '0 0 8px 2px rgba(0,232,92,0.55)',    label: 'text-neon-400',  bg: 'rgba(0,232,92,0.06)'    },
-  offline: { dot: '#2e3347',  shadow: 'none',                                label: 'text-slate-600', bg: 'rgba(30,35,52,0.3)'     },
-  warning: { dot: '#f59e0b',  shadow: '0 0 8px 2px rgba(245,158,11,0.55)',  label: 'text-amber-400', bg: 'rgba(245,158,11,0.06)'  },
-  error:   { dot: '#ff4d6d',  shadow: '0 0 8px 2px rgba(255,77,109,0.55)',  label: 'text-red-400',   bg: 'rgba(255,77,109,0.06)'  },
+  online:     { dot: 'bg-emerald-500 dark:bg-emerald-500', shadow: 'shadow-[0_0_10px_rgba(16,185,129,0.5)]', label: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+  connecting: { dot: 'bg-amber-500 dark:bg-amber-500', shadow: 'shadow-[0_0_10px_rgba(245,158,11,0.5)]', label: 'text-amber-500', bg: 'bg-amber-500/10' },
+  offline:    { dot: 'bg-rose-500 dark:bg-rose-600', shadow: 'shadow-[0_0_10px_rgba(244,63,94,0.5)]', label: 'text-rose-500', bg: 'bg-rose-500/10' },
+  warning:    { dot: 'bg-amber-500 dark:bg-amber-500', shadow: 'shadow-[0_0_10px_rgba(245,158,11,0.5)]', label: 'text-amber-500', bg: 'bg-amber-500/10' },
+  error:      { dot: 'bg-rose-500 dark:bg-rose-600', shadow: 'shadow-[0_0_10px_rgba(244,63,94,0.5)]', label: 'text-rose-500', bg: 'bg-rose-500/10' },
 }
 
 function StatusDot({ status }) {
-  const s = STATUS_STYLES[status] ?? STATUS_STYLES.offline
+  const s = STATUS_STYLES[status] || STATUS_STYLES.offline
+  const isPulsing = status === 'online' || status === 'connecting'
   return (
-    <span
-      className="inline-block w-2 h-2 rounded-full shrink-0"
-      style={{ background: s.dot, boxShadow: s.shadow }}
-    />
+    <span className="relative flex h-2 w-2 mr-1">
+      {isPulsing && <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${s.dot}`}></span>}
+      <span className={`relative inline-flex rounded-full h-2 w-2 ${s.dot} ${s.shadow}`}></span>
+    </span>
   )
 }
 
@@ -136,7 +140,7 @@ function NavSection({ items, collapsed, label }) {
     <div className="mb-1">
       {!collapsed && label && (
         <div className="px-4 pt-3 pb-1.5">
-          <p className="text-[10px] uppercase tracking-[0.16em] text-slate-700 font-bold">
+          <p className="text-[10px] uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400 font-bold">
             {label}
           </p>
         </div>
@@ -150,11 +154,11 @@ function NavSection({ items, collapsed, label }) {
               end
               data-accent={accent}
               className={({ isActive }) =>
-                `sidebar-link flex items-center gap-3 px-2.5 py-2.5 rounded-xl
+                `sidebar-link flex items-center gap-3 px-2.5 py-2.5 rounded-lg
                  transition-all duration-150 group relative
                  ${isActive
-                   ? 'is-active text-slate-100'
-                   : 'text-slate-500 hover:text-slate-200'
+                   ? 'bg-slate-100 dark:bg-slate-800'
+                   : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
                  }`
               }
               title={collapsed ? itemLabel : undefined}
@@ -162,11 +166,16 @@ function NavSection({ items, collapsed, label }) {
               {({ isActive }) => (
                 <>
                   <Icon
-                    className={`shrink-0 transition-colors duration-200 ${isActive ? color : 'text-slate-600 group-hover:text-slate-400'}`}
+                    className={`shrink-0 transition-colors duration-200 ${isActive ? color : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white'}`}
                     style={{ width: '18px', height: '18px' }}
                   />
                   {!collapsed && (
-                    <span className="truncate animate-fade-in font-medium">{itemLabel}</span>
+                    <span className={`text-[13px] tracking-tight font-semibold transition-colors duration-200
+                          ${isActive 
+                            ? 'text-slate-900 dark:text-white' 
+                            : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white'}`}>
+                      {itemLabel}
+                    </span>
                   )}
 
                   {/* Active glow dot */}
@@ -186,11 +195,10 @@ function NavSection({ items, collapsed, label }) {
                       className="tooltip-arrow absolute left-full ml-3 px-3 py-2 rounded-lg
                                   text-xs whitespace-nowrap opacity-0 group-hover:opacity-100
                                   pointer-events-none transition-all duration-150 z-50
-                                  border border-white/10"
-                      style={{ background: 'rgba(12,14,22,0.97)', backdropFilter: 'blur(16px)' }}
+                                  border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl"
                     >
-                      <div className="font-semibold text-slate-200 text-[13px]">{itemLabel}</div>
-                      <div className="text-slate-500 text-[11px] mt-0.5">{description}</div>
+                      <div className="tracking-tight font-semibold text-slate-900 dark:text-white text-[13px]">{itemLabel}</div>
+                      <div className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">{description}</div>
                     </div>
                   )}
                 </>
@@ -203,65 +211,81 @@ function NavSection({ items, collapsed, label }) {
   )
 }
 
+function normaliseStatus(raw) {
+  if (!raw) return 'offline'
+  const s = String(raw).toLowerCase()
+  if (s === 'running' || s === 'online') return 'online'
+  if (s === 'starting' || s === 'connecting' || s === 'loading') return 'connecting'
+  return 'offline'
+}
+
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
+  const { coreStatus = 'offline' } = useNetwork() || {}
+  const [networkStatus, setNetworkStatus] = useState(INITIAL_NETWORK_STATUS)
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const resGnb = await fetch('/api/binary/gnb/status')
+        const dataGnb = await resGnb.json()
+        const resUe = await fetch('/api/binary/ue/status')
+        const dataUe = await resUe.json()
+
+        setNetworkStatus(prev => prev.map(n => {
+          if (n.id === 'gnb' && dataGnb.success) return { ...n, status: normaliseStatus(dataGnb.status) }
+          if (n.id === 'ue' && dataUe.success) return { ...n, status: normaliseStatus(dataUe.status) }
+          return n
+        }))
+      } catch (e) {
+        console.error(e)
+      }
+    }
+
+    fetchStatus()
+    const int = setInterval(fetchStatus, 3000)
+    return () => clearInterval(int)
+  }, [])
   return (
     <aside
-      className={`glass-sidebar flex flex-col z-40 transition-all duration-300 ease-in-out shrink-0
-                  fixed inset-y-0 left-0 lg:relative
+      className={`flex flex-col z-40 transition-all duration-300 ease-in-out shrink-0
+                  fixed inset-y-0 left-0 lg:relative bg-white/70 backdrop-blur-md border-r border-slate-200/80 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]
+                  dark:bg-slate-900 dark:border-slate-800 dark:shadow-xl
                   ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       style={{ width: collapsed ? '64px' : '248px' }}
     >
       {/* ── LOGO AREA ───────────────────────────────── */}
-      <div className="flex items-center h-[58px] px-3 border-b border-white/[0.05] shrink-0">
+      <div className="flex items-center h-[58px] px-3 border-b border-slate-200 dark:border-slate-800 shrink-0">
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          {/* Premium logo mark */}
-          <div className="relative flex-shrink-0">
-            <SidebarLogo />
-            <span
-              className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[#07080c]"
-              style={{
-                background: 'var(--neon)',
-                boxShadow: '0 0 8px rgba(0,232,92,0.8)',
-                animation: 'pulse 2s ease-in-out infinite',
-              }}
-            />
+          <img src="/logo.jpeg" alt="Hnnoix Logo" className="w-10 h-10 object-contain shrink-0 drop-shadow-sm" />
+          <div className={`flex flex-col min-w-0 transition-opacity duration-300 ${collapsed ? 'opacity-0 lg:hidden' : 'opacity-100'}`}>
+            <span className="tracking-tight font-semibold text-[20px] dark:text-white text-slate-900">
+              Hnnoix
+            </span>
+            <span className="text-[10px] tracking-tight font-semibold text-slate-500 dark:text-slate-400 uppercase pl-1">
+              5G Core
+            </span>
           </div>
-
-          {/* Wordmark */}
-          {!collapsed && (
-            <div className="min-w-0 animate-fade-in">
-              <div
-                className="text-[15px] font-extrabold leading-tight brand-gradient tracking-tight"
-                style={{ fontFamily: "'Syne', sans-serif", letterSpacing: '-0.02em' }}
-              >
-                Hnnoix
-              </div>
-              <div className="text-[10.5px] text-slate-500 leading-tight font-mono tracking-wide font-semibold">
-                Hnnoix Core GUI
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Collapse toggle (Desktop) */}
         <button
           onClick={onToggle}
           className="hidden lg:flex flex-shrink-0 w-7 h-7 rounded-lg items-center justify-center
-                     text-slate-600 hover:text-slate-300 hover:bg-white/[0.07] transition-all duration-150"
+                     text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-150"
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed
-            ? <ChevronRight className="w-4 h-4" />
-            : <ChevronLeft  className="w-4 h-4" />}
+            ? <ChevronRight className="w-4-4" />
+            : <ChevronLeft  className="w-4-4" />}
         </button>
 
         {/* Close toggle (Mobile) */}
         <button
           onClick={onMobileClose}
           className="lg:hidden flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center
-                     text-slate-600 hover:text-slate-300 hover:bg-white/[0.07] transition-all duration-150"
+                     text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-150"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="w-4-4" />
         </button>
       </div>
 
@@ -283,31 +307,30 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
       </div>
 
       {/* ── NETWORK STATUS PANEL ────────────────────── */}
-      <div className="border-t border-white/[0.05] p-3 shrink-0">
+      <div className="border-t border-slate-200 dark:border-slate-800 p-3 shrink-0">
         {!collapsed ? (
           <div>
             <div className="flex items-center gap-2 mb-2.5">
-              <Activity className="w-3.5 h-3.5 text-slate-600" />
-              <span className="text-[10px] uppercase tracking-[0.16em] text-slate-700 font-bold">
+              <Activity className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+              <span className="text-[10px] uppercase tracking-tight text-slate-500 dark:text-slate-400 font-semibold">
                 Network Status
               </span>
             </div>
             <div className="space-y-1.5">
-              {networkStatus.map(({ label, status }) => {
+              {networkStatus.map((n) => {
+                const status = n.id === 'core' ? coreStatus : n.status
+                const label = n.label
                 const s = STATUS_STYLES[status] ?? STATUS_STYLES.offline
                 return (
                   <div
                     key={label}
-                    className="flex items-center justify-between px-2.5 py-2 rounded-lg transition-colors"
-                    style={{ background: s.bg, border: '1px solid rgba(255,255,255,0.04)' }}
+                    className="flex items-center justify-between px-2.5 py-2 rounded-lg transition-all duration-300 bg-white hover:bg-slate-50 border border-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-slate-800 hover:-translate-y-0.5 shadow-sm dark:shadow-xl"
                   >
-                    <div className="flex items-center gap-2">
+                    <span className="text-[11.5px] tracking-tight font-semibold text-slate-900 dark:text-white">{label}</span>
+                    <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${s.bg} ${s.label}`}>
                       <StatusDot status={status} />
-                      <span className="text-[12px] text-slate-400 font-mono font-medium tracking-wide">{label}</span>
-                    </div>
-                    <span className={`text-[10px] capitalize font-bold ${s.label} uppercase tracking-wider`}>
                       {status}
-                    </span>
+                    </div>
                   </div>
                 )
               })}
@@ -315,11 +338,14 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2 py-1">
-            {networkStatus.map(({ label, status }) => (
-              <div key={label} title={`${label}: ${status}`}>
-                <StatusDot status={status} />
-              </div>
-            ))}
+            {networkStatus.map((n) => {
+              const status = n.id === 'core' ? coreStatus : n.status
+              return (
+                <div key={n.label} title={`${n.label}: ${status}`}>
+                  <StatusDot status={status} />
+                </div>
+              )
+            })}
           </div>
         )}
       </div>

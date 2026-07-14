@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Duranta Log Viewer</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #111;
+            color: #0f0;
+            font-family: monospace;
+        }
+
+        #logs {
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Live Logs</h2>
+
+<div id="logs"></div>
+
+<script>
+
+const logs = document.getElementById("logs");
+
+const ws = new WebSocket("ws://localhost:5000");
+
+ws.onopen = () => {
+    logs.innerHTML += "Connected\n";
+};
+
+ws.onclose = () => {
+    logs.innerHTML += "\nDisconnected\n";
+};
+
+ws.onerror = (err) => {
+    console.error(err);
+};
+
+ws.onmessage = (event) => {
+
+    const data = JSON.parse(event.data);
+
+    logs.innerHTML += `[${data.process}] ${data.message}`;
+
+    window.scrollTo(0, document.body.scrollHeight);
+
+};
+
+</script>
+
+</body>
+</html>
