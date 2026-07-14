@@ -8,7 +8,7 @@ const ThemeContext = createContext({
 export function ThemeProvider({ children }) {
   const [darkMode, setDarkMode] = useState(() => {
     try {
-      const saved = localStorage.getItem('theme-dark')
+      const saved = localStorage.getItem('hnx-theme-dark')
       if (saved !== null) {
         return saved === 'true'
       }
@@ -27,7 +27,7 @@ export function ThemeProvider({ children }) {
     }
     
     try {
-      localStorage.setItem('theme-dark', darkMode)
+      localStorage.setItem('hnx-theme-dark', darkMode)
     } catch (e) {
       // Ignore localStorage errors
     }
@@ -37,7 +37,7 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handleChange = (e) => {
-      const saved = localStorage.getItem('theme-dark')
+      const saved = localStorage.getItem('hnx-theme-dark')
       // If we want to stay in default light mode, we might not want to auto-switch, 
       // but keeping this respects the user's OS changes if they haven't explicitly set a preference.
       // However, to ensure default is light, we can comment this out or leave it. 
